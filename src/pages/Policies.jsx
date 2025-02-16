@@ -1,0 +1,33 @@
+import { Box, Button, Typography } from "@mui/material";
+import { Add } from "@mui/icons-material";
+import { PoliciesTable } from "../components/PoliciesTable";
+import { useNavigate } from "react-router-dom";
+
+export function Policies() {
+  const navigate = useNavigate();
+  return (
+    <Box sx={{ px: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          py: 2,
+        }}
+      >
+        <Typography variant="h5">Approval Policies</Typography>
+        <Button
+          variant="contained"
+          startIcon={<Add />}
+          sx={{ display: { xs: "none", md: "flex" } }}
+          onClick={() => {
+            navigate("/policies/form");
+          }}
+        >
+          Add Rules
+        </Button>
+      </Box>
+      <PoliciesTable />
+    </Box>
+  );
+}
