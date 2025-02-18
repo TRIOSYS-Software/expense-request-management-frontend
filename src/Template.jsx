@@ -34,12 +34,16 @@ export default function Template() {
     </Box>
   );
 
-  if (!auth || isLoadingUser) {
+  if (isLoadingUser) {
     return (
       <Box>
         <CircularProgress />
       </Box>
     );
+  }
+
+  if (!auth) {
+    return <Navigate to="/login" />;
   }
 
   return auth ? content : <Navigate to="/login" />;

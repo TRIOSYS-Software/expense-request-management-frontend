@@ -47,15 +47,6 @@ export async function fetchRoles() {
     return res.data;
 }
 
-export async function fetchRules() {
-    const res = await axios.get(`${api}/approval-policies`, {
-        headers: {
-            'Authorization': `${getToken()}`
-        }
-    });
-    return res.data;
-}
-
 export async function fetchDeparments() {
     const res = await axios.get(`${api}/departments`, {
         headers: {
@@ -99,6 +90,33 @@ export async function getProjects(){
     const res = await axios.get(`${sqlAccApi}/projects`, {
         headers: {
             'ShweTaik': `${encryptedKey}`
+        }
+    });
+    return res.data;
+}
+
+export async function fetchPolicies() {
+    const res = await axios.get(`${api}/approval-policies`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function createPolicy(data){
+    const res = await axios.post(`${api}/approval-policies`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function deletePolicy(id){
+    const res = await axios.delete(`${api}/approval-policies/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
         }
     });
     return res.data;

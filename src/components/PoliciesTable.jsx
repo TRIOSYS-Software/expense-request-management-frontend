@@ -10,14 +10,17 @@ import {
   Box,
   Button,
   IconButton,
+  Chip,
 } from "@mui/material";
 
 import { useQuery } from "react-query";
-import { fetchRules } from "../libs/fetcher";
+import { fetchPolicies, deletePolicy } from "../libs/fetcher";
 import { Delete, Edit } from "@mui/icons-material";
+import { useApp } from "../ThemedApp";
 
 export function PoliciesTable() {
-  const { data, isLoading, isError, error } = useQuery("rules", fetchRules);
+  const { setGlobalMsg } = useApp();
+  const { data, isLoading, isError, error } = useQuery("rules", fetchPolicies);
 
   if (isLoading) {
     return (
@@ -44,20 +47,37 @@ export function PoliciesTable() {
               <TableCell>Id</TableCell>
               <TableCell>Condition Type</TableCell>
               <TableCell>Condition Value</TableCell>
+              <TableCell>Approver Roles</TableCell>
+              <TableCell>For Department</TableCell>
+              <TableCell>Priority</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((rule) => (
-              <TableRow key={rule.id}>
+            {data.map((rule, index) => (
+              <TableRow key={index}>
                 <TableCell>{rule.id}</TableCell>
                 <TableCell>{rule.condition_type}</TableCell>
                 <TableCell>{rule.condition_value}</TableCell>
                 <TableCell>
+                  {rule.approver_roles.map((role, index) => (
+                    <Chip key={index} label={role.name} sx={{ mr: 1 }} />
+                  ))}
+                </TableCell>
+                <TableCell>{rule.departments.name || "-"}</TableCell>
+                <TableCell>{rule.priority}</TableCell>
+                <TableCell>
                   <IconButton>
                     <Edit />
                   </IconButton>
-                  <IconButton>
+                  <IconButton
+                    color="error"
+                    onClick={() => {
+                      deletePolicy(rule.id);
+                      setGlobalMsg("Policy deleted successfully");
+                      window.location.reload();
+                    }}
+                  >
                     <Delete />
                   </IconButton>
                 </TableCell>

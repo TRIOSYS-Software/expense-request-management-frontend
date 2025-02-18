@@ -24,7 +24,7 @@ export function Policies() {
             navigate("/policies/form");
           }}
         >
-          Add Rules
+          Policy
         </Button>
       </Box>
       <PoliciesTable />

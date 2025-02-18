@@ -78,15 +78,16 @@ const queryClient = new QueryClient();
 
 export default function ThemedApp() {
   const [auth, setAuth] = useState(null);
-  const [isLoadingUser, setIsLoadingUser] = useState(false);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [globalMsg, setGlobalMsg] = useState(null);
 
   useEffect(() => {
-    setIsLoadingUser(true);
-    fetchVerify().then((user) => {
-      if (user) setAuth(user);
-      setIsLoadingUser(false);
-    });
+    fetchVerify()
+      .then((user) => {
+        if (user) setAuth(user);
+        setIsLoadingUser(false);
+      })
+      .catch(() => setIsLoadingUser(false));
   }, []);
 
   return (
