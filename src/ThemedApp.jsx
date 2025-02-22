@@ -14,6 +14,7 @@ import Users from "./pages/Users";
 import UserForm from "./pages/UserForm";
 import { Policies } from "./pages/Policies";
 import PolicyForm from "./pages/PolicyForm";
+import AdminRoute from "./pages/AdminRoute";
 
 const theme = createTheme({
   palette: {
@@ -43,28 +44,44 @@ const router = createBrowserRouter([
         element: <ExpenseForm />,
       },
       {
-        path: "/test",
-        element: <Test />,
-      },
-      {
         path: "/users",
-        element: <Users />,
+        element: (
+          <AdminRoute>
+            <Users />
+          </AdminRoute>
+        ),
       },
       {
         path: "/users/form",
-        element: <UserForm />,
+        element: (
+          <AdminRoute>
+            <UserForm />
+          </AdminRoute>
+        ),
       },
       {
         path: "/users/form/:id",
-        element: <UserForm />,
+        element: (
+          <AdminRoute>
+            <UserForm />
+          </AdminRoute>
+        ),
       },
       {
         path: "/policies",
-        element: <Policies />,
+        element: (
+          <AdminRoute>
+            <Policies />
+          </AdminRoute>
+        ),
       },
       {
         path: "/policies/form",
-        element: <PolicyForm />,
+        element: (
+          <AdminRoute>
+            <PolicyForm />
+          </AdminRoute>
+        ),
       },
     ],
   },

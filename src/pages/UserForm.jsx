@@ -154,7 +154,7 @@ function UserForm() {
             />
             {errors.name && (
               <Typography variant="caption" color="error">
-                {errors.email.message}
+                {errors.name.message}
               </Typography>
             )}
           </Grid>

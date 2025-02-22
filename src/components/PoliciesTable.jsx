@@ -11,16 +11,36 @@ import {
   Button,
   IconButton,
   Chip,
+  Alert,
 } from "@mui/material";
 
 import { useQuery } from "react-query";
-import { fetchPolicies, deletePolicy } from "../libs/fetcher";
+import {
+  fetchPolicies,
+  deletePolicy,
+  fetchExpenseCategoryById,
+} from "../libs/fetcher";
 import { Delete, Edit } from "@mui/icons-material";
 import { useApp } from "../ThemedApp";
+import { useEffect } from "react";
 
 export function PoliciesTable() {
   const { setGlobalMsg } = useApp();
   const { data, isLoading, isError, error } = useQuery("rules", fetchPolicies);
+
+  console.log(data);
+
+  const AsyncCategoryName = ({ id }) => {
+    const { data: category } = useQuery(
+      `category-${id}`,
+      () => fetchExpenseCategoryById(id),
+      {
+        enabled: !!id,
+      }
+    );
+
+    return category ? <span>{category.name}</span> : <CircularProgress />;
+  };
 
   if (isLoading) {
     return (
@@ -58,16 +78,22 @@ export function PoliciesTable() {
               <TableRow key={index}>
                 <TableCell>{rule.id}</TableCell>
                 <TableCell>{rule.condition_type}</TableCell>
-                <TableCell>{rule.condition_value}</TableCell>
                 <TableCell>
-                  {rule.approver_roles.map((role, index) => (
-                    <Chip key={index} label={role.name} sx={{ mr: 1 }} />
+                  {rule.condition_type === "category" ? (
+                    <AsyncCategoryName id={rule.condition_value} />
+                  ) : (
+                    rule.condition_value
+                  )}
+                </TableCell>
+                <TableCell>
+                  {rule.approvers.map((approver, index) => (
+                    <Chip key={index} label={approver.name} sx={{ mr: 1 }} />
                   ))}
                 </TableCell>
                 <TableCell>{rule.departments.name || "-"}</TableCell>
                 <TableCell>{rule.priority}</TableCell>
                 <TableCell>
-                  <IconButton>
+                  <IconButton color="primary">
                     <Edit />
                   </IconButton>
                   <IconButton

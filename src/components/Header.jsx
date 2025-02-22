@@ -14,7 +14,7 @@ import { AccountCircle } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 export default function Header({ setShowDrawer }) {
-  const { auth } = useApp();
+  const { auth, setAuth } = useApp();
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
@@ -28,6 +28,7 @@ export default function Header({ setShowDrawer }) {
 
   const logout = () => {
     localStorage.removeItem("token");
+    setAuth(null);
     setAnchorEl(null);
     navigate("/login");
   };

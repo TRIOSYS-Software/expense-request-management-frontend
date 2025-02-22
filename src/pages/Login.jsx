@@ -29,7 +29,7 @@ const Login = () => {
     async ({ email, password }) => postLogin(email, password),
     {
       onSuccess: async (data) => {
-        setAuth(data.User);
+        setAuth({ ...data.User, roles: data.User.roles });
         localStorage.setItem("token", data.Token);
         navigate("/");
       },
@@ -67,7 +67,7 @@ const Login = () => {
         >
           <TextField
             required
-            id="outlined-required"
+            id="outlined-email-input"
             label="Email"
             {...register("email", {
               required: "Email is required!",
@@ -84,7 +84,7 @@ const Login = () => {
           )}
           <TextField
             required
-            id="outlined-required"
+            id="outlined-password-input"
             type="password"
             label="Password"
             {...register("password", {

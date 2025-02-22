@@ -7,7 +7,20 @@ const key = import.meta.env.VITE_KEY;
 const secret = import.meta.env.VITE_SECRET;
 
 export async function fetchExpenseCategories() {
-    const res = await axios.get(`${api}/expense-categories`);
+    const res = await axios.get(`${api}/expense-categories`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function fetchExpenseCategoryById(id) {
+    const res = await axios.get(`${api}/expense-categories/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
     return res.data;
 }
 
@@ -22,6 +35,15 @@ export async function fetchUsers() {
 
 export async function fetchUserById(id) {
     const res = await axios.get(`${api}/users/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function fetchUsersByRole(role) {
+    const res = await axios.get(`${api}/users/role/${role}`, {
         headers: {
             'Authorization': `${getToken()}`
         }
@@ -120,4 +142,58 @@ export async function deletePolicy(id){
         }
     });
     return res.data;
+}
+
+export async function createExpense(data){
+    const res = await axios.post(`${api}/expense-requests`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function fetchExpenseRequests(){
+    const res = await axios.get(`${api}/expense-requests`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function fetchExpenseRequestsByApproverID(id){
+    const res = await axios.get(`${api}/expense-requests/approver/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function fetchExpenseRequestsByUserID(id){
+    const res = await axios.get(`${api}/expense-requests/user/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function fetchExpenseApprovalsByApproverID(id){
+    const res = await axios.get(`${api}/expense-approvals/approver/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function updateExpenseApprovals(id, data){
+    console.log({id, data});
+    const res = await axios.put(`${api}/expense-approvals/${id}`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
 }

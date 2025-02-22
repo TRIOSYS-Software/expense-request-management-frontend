@@ -6,14 +6,7 @@ import { useState } from "react";
 import AppDrawer from "./components/AppDrawer";
 
 export default function Template() {
-  const {
-    auth,
-    setAuth,
-    globalMsg,
-    setGlobalMsg,
-    isLoadingUser,
-    setIsLoadingUser,
-  } = useApp();
+  const { auth, globalMsg, setGlobalMsg, isLoadingUser } = useApp();
   const [showDrawer, setShowDrawer] = useState(false);
 
   const content = (

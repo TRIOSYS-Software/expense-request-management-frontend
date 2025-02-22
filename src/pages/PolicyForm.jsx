@@ -21,18 +21,21 @@ import {
   fetchDeparments,
   fetchExpenseCategories,
   fetchRoles,
+  fetchUsersByRole,
   getProjects,
 } from "../libs/fetcher";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ArrowBackIos, Send } from "@mui/icons-material";
 import { useApp } from "../ThemedApp";
+import { useNavigate } from "react-router-dom";
 
 function PolicyForm() {
   const { setGlobalMsg } = useApp();
+  const navigate = useNavigate();
   const queries = [
     {
-      queryKey: "roles",
-      queryFn: fetchRoles,
+      queryKey: "approvers",
+      queryFn: () => fetchUsersByRole(2),
     },
     {
       queryKey: "departments",
@@ -50,7 +53,7 @@ function PolicyForm() {
 
   const results = useQueries(queries);
 
-  const [roles, departments, expenseCategories, projects] = results;
+  const [approvers, departments, expenseCategories, projects] = results;
 
   const {
     register,
@@ -61,7 +64,7 @@ function PolicyForm() {
     reset,
   } = useForm({
     defaultValues: {
-      roles: [],
+      approvers: [],
       department: "",
       conditionType: "amount",
       conditionValue: "",
@@ -82,13 +85,14 @@ function PolicyForm() {
   const onSubmit = (data) => {
     const request = {
       condition_type: data.conditionType,
-      condition_value: data.conditionValue,
+      condition_value: `${data.conditionValue}`,
       department: data.department || null,
       priority: parseInt(data.priority),
-      approver_roles: data.roles.map((r) => {
+      approvers: data.approvers.map((r) => {
         return { id: r };
       }),
     };
+    // console.log(request);
     create.mutate(request);
   };
 
@@ -99,7 +103,7 @@ function PolicyForm() {
   });
 
   if (
-    roles.isLoading ||
+    approvers.isLoading ||
     departments.isLoading ||
     expenseCategories.isLoading ||
     projects.isLoading
@@ -112,14 +116,14 @@ function PolicyForm() {
   }
 
   if (
-    roles.isError ||
+    approvers.isError ||
     departments.isError ||
     expenseCategories.isError ||
     projects.isError
   ) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
-        <Alert severity="error">{roles.error || departments.error}</Alert>
+        <Alert severity="error">{approvers.error || departments.error}</Alert>
       </Box>
     );
   }
@@ -187,9 +191,9 @@ function PolicyForm() {
                             label="category"
                           >
                             <MenuItem value={""}>choose category</MenuItem>
-                            {expenseCategories.data.map((dept) => (
-                              <MenuItem key={dept.id} value={dept.id}>
-                                {dept.name}
+                            {expenseCategories.data.map((category) => (
+                              <MenuItem key={category.id} value={category.id}>
+                                {category.name}
                               </MenuItem>
                             ))}
                           </Select>
@@ -281,24 +285,24 @@ function PolicyForm() {
           </Grid2>
           <Grid2 size={12}>
             <Controller
-              name="roles"
+              name="approvers"
               control={control}
               rules={{ required: "Approver Roles is required!" }}
               render={({ field }) => (
                 <FormControl variant="outlined" fullWidth>
                   <InputLabel id="demo-multiple-chip-label">
-                    Approver Roles
+                    Approvers
                   </InputLabel>
                   <Select
                     labelId="demo-multiple-chip-label"
                     id="demo-multiple-chip"
                     multiple
                     {...field}
-                    input={<OutlinedInput label="Approver Roles" />}
+                    input={<OutlinedInput label="Approvers" />}
                     renderValue={(selected) => (
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                         {selected.map((value) => {
-                          const label = roles.data.find(
+                          const label = approvers.data.find(
                             (a) => a.id === value
                           ).name;
                           return <Chip key={value} label={label} />;
@@ -306,9 +310,9 @@ function PolicyForm() {
                       </Box>
                     )}
                   >
-                    {roles.data.map((option) => (
+                    {approvers.data.map((option) => (
                       <MenuItem key={option.id} value={option.id}>
-                        {option.name}
+                        {option.name} ({option.departments.name})
                       </MenuItem>
                     ))}
                   </Select>

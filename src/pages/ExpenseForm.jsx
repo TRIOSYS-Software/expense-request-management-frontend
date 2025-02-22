@@ -13,16 +13,22 @@ import {
   Select,
   OutlinedInput,
   Chip,
+  FormHelperText,
 } from "@mui/material";
 import { Send, ArrowBackIos } from "@mui/icons-material";
-import { useQueries, useQuery } from "react-query";
-import { fetchExpenseCategories, getProjects } from "../libs/fetcher";
+import { useMutation, useQueries, useQuery } from "react-query";
+import {
+  createExpense,
+  fetchExpenseCategories,
+  fetchUsers,
+  getProjects,
+} from "../libs/fetcher";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../ThemedApp";
 
 const ExpenseForm = () => {
-  const { setGlobalMsg } = useApp();
+  const { auth, setGlobalMsg } = useApp();
   const navigate = useNavigate();
 
   const queries = [
@@ -34,11 +40,17 @@ const ExpenseForm = () => {
       queryKey: "projects",
       queryFn: getProjects,
     },
+    {
+      queryKey: "users",
+      queryFn: fetchUsers,
+    },
   ];
 
   const results = useQueries(queries);
 
-  const [expenseCategories, projects] = results;
+  const [expenseCategories, projects, users] = results;
+
+  const approvers = users.data?.filter((user) => user.roles.id === 2);
 
   const {
     register,
@@ -59,13 +71,33 @@ const ExpenseForm = () => {
     },
   });
 
-  const approversValue = [
-    { id: 1, name: "Approver 1" },
-    { id: 2, name: "Approver 2" },
-    { id: 3, name: "Approver 3" },
-  ];
+  const create = useMutation(async (data) => createExpense(data), {
+    onSuccess: async (data) => {
+      setGlobalMsg("Expense created successfully!");
+      reset();
+    },
+    onError: (error) => {
+      setError("root", {
+        message: error.message,
+      });
+    },
+  });
 
-  if (expenseCategories.isLoading || projects.isLoading) {
+  const onSubmit = (data) => {
+    const date = new Date(data.submittedDate);
+    const request = {
+      amount: parseInt(data.amount),
+      category_id: data.category,
+      description: data.description,
+      project: data.project,
+      date_submitted: date.toISOString(),
+      approvers: data.approver?.join(",") || null,
+      user_id: auth.id,
+    };
+    create.mutate(request);
+  };
+
+  if (expenseCategories.isLoading || projects.isLoading || users.isLoading) {
     return (
       <Box
         sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
@@ -75,20 +107,16 @@ const ExpenseForm = () => {
     );
   }
 
-  if (expenseCategories.isError || projects.isError) {
+  if (expenseCategories.isError || projects.isError || users.isError) {
     return (
       <Alert severity="error">
         "Something went wrong!",{" "}
-        {expenseCategories.error.message || projects.error.message}
+        {expenseCategories.error?.message ||
+          projects.error?.message ||
+          users.error?.message}
       </Alert>
     );
   }
-
-  const onSubmit = (data) => {
-    console.log({ data });
-    setGlobalMsg("Expense created successfully!");
-    reset();
-  };
 
   return (
     <Box
@@ -170,7 +198,7 @@ const ExpenseForm = () => {
                   <Select labelId="category-label" label="Category" {...field}>
                     <MenuItem value="">Choose an option</MenuItem>
                     {expenseCategories.data.map((option) => (
-                      <MenuItem key={option.id} value={option.name}>
+                      <MenuItem key={option.id} value={option.id}>
                         {option.name}
                       </MenuItem>
                     ))}
@@ -217,6 +245,14 @@ const ExpenseForm = () => {
             <Controller
               name="approver"
               control={control}
+              rules={{
+                validate: (value) => {
+                  if (value.length > 3) {
+                    return "Only Select 3 Approvers.";
+                  }
+                  return true;
+                },
+              }}
               render={({ field }) => (
                 <FormControl sx={{ width: "100%" }}>
                   <InputLabel id="demo-multiple-chip-label">
@@ -231,7 +267,7 @@ const ExpenseForm = () => {
                     renderValue={(selected) => (
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                         {selected.map((value) => {
-                          const label = approversValue.find(
+                          const label = approvers.find(
                             (a) => a.id === value
                           ).name;
                           return <Chip key={value} label={label} />;
@@ -239,15 +275,23 @@ const ExpenseForm = () => {
                       </Box>
                     )}
                   >
-                    {approversValue.map((option) => (
+                    {approvers.map((option) => (
                       <MenuItem key={option.id} value={option.id}>
-                        {option.name}
+                        {option.name} ({option.departments.name})
                       </MenuItem>
                     ))}
                   </Select>
+                  <FormHelperText>
+                    Select up to 3 people to approve the expense. order matters!
+                  </FormHelperText>
                 </FormControl>
               )}
             />
+            {errors.approver && (
+              <Typography variant="body2" color="error">
+                {errors.approver.message}
+              </Typography>
+            )}
           </Grid>
         </Grid>
         <Box
