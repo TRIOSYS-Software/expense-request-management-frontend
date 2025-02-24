@@ -127,7 +127,7 @@ export default function AppDrawer({ showDrawer, setShowDrawer }) {
                 <ListItem disablePadding>
                   <ListItemButton
                     onClick={() => {
-                      navigate("/expense-form");
+                      navigate("/departments");
                       setShowDrawer(false);
                     }}
                   >

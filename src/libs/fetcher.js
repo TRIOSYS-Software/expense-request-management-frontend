@@ -24,6 +24,33 @@ export async function fetchExpenseCategoryById(id) {
     return res.data;
 }
 
+export async function createExpenseCategory(data) {
+    const res = await axios.post(`${api}/expense-categories`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function updateExpenseCategory(id, data) {
+    const res = await axios.put(`${api}/expense-categories/${id}`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function deleteExpenseCategory(id) {
+    const res = await axios.delete(`${api}/expense-categories/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
 export async function fetchUsers() {
     const res = await axios.get(`${api}/users`, {
         headers: {
@@ -71,6 +98,33 @@ export async function fetchRoles() {
 
 export async function fetchDeparments() {
     const res = await axios.get(`${api}/departments`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function createDepartment(data) {
+    const res = await axios.post(`${api}/departments`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function updateDepartment(id, data) {
+    const res = await axios.put(`${api}/departments/${id}`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function deleteDepartment(id) {
+    const res = await axios.delete(`${api}/departments/${id}`, {
         headers: {
             'Authorization': `${getToken()}`
         }

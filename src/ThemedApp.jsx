@@ -15,6 +15,8 @@ import UserForm from "./pages/UserForm";
 import { Policies } from "./pages/Policies";
 import PolicyForm from "./pages/PolicyForm";
 import AdminRoute from "./pages/AdminRoute";
+import Categories from "./pages/Categories";
+import Departments from "./pages/Departments";
 
 const theme = createTheme({
   palette: {
@@ -83,6 +85,22 @@ const router = createBrowserRouter([
           </AdminRoute>
         ),
       },
+      {
+        path: "/categories",
+        element: (
+          <AdminRoute>
+            <Categories />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/departments",
+        element: (
+          <AdminRoute>
+            <Departments />
+          </AdminRoute>
+        ),
+      },
     ],
   },
   {
@@ -91,7 +109,7 @@ const router = createBrowserRouter([
   },
 ]);
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export default function ThemedApp() {
   const [auth, setAuth] = useState(null);
