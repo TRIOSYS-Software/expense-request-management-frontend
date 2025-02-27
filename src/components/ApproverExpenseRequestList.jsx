@@ -34,9 +34,7 @@ const style = {
   p: 4,
 };
 
-function CustomTabPanel(props) {
-  const { children, value, index, ...other } = props;
-
+function CustomTabPanel({ children, value, index, ...other }) {
   return (
     <div
       role="tabpanel"
@@ -76,9 +74,12 @@ export default function ApproverExpenseRequestList() {
     () => fetchExpenseRequestsByApproverID(auth.id)
   );
 
-  const pendingExpenseRequest = data?.filter((r) => r.status === "pending");
-  const approvedExpenseRequest = data?.filter((r) => r.status === "approved");
-  const rejectedExpenseRequest = data?.filter((r) => r.status === "rejected");
+  const categorizeExpenseRequests = (status) =>
+    data?.filter((r) => r.status === status);
+
+  const pendingExpenseRequest = categorizeExpenseRequests("pending");
+  const approvedExpenseRequest = categorizeExpenseRequests("approved");
+  const rejectedExpenseRequest = categorizeExpenseRequests("rejected");
 
   const update = useMutation(
     async (data) => {
@@ -113,23 +114,144 @@ export default function ApproverExpenseRequestList() {
   };
 
   const handleAction = () => {
-    if (action === "approve") {
-      const data = {
-        status: "approved",
-        comments: comments,
-        approval_date: new Date().toISOString(),
-      };
-      update.mutate(data);
-    } else {
-      const data = {
-        status: "rejected",
-        comments: comments,
-        approval_date: new Date().toISOString(),
-      };
-      update.mutate(data);
-    }
+    const data = {
+      status: action === "approve" ? "approved" : "rejected",
+      comments: comments,
+      approval_date: new Date().toISOString(),
+    };
+    update.mutate(data);
     handleClose();
   };
+
+  const renderExpenseList = (expenses) =>
+    expenses?.map((expense) => {
+      const date = new Date(expense.date_submitted);
+      return (
+        <Grid2 key={expense.id} size={12}>
+          <Card sx={{ p: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+              }}
+            >
+              <Box>
+                <Typography variant="h5">
+                  {expense.amount}{" "}
+                  <Chip
+                    label={expense.status}
+                    color={
+                      expense.status === "pending"
+                        ? "warning"
+                        : expense.status === "approved"
+                        ? "success"
+                        : "error"
+                    }
+                  />
+                </Typography>
+                <Typography variant="body2">{expense.user.name}</Typography>
+                <Typography>{date.toLocaleDateString()}</Typography>
+              </Box>
+              <Box
+                sx={{ display: "flex", justifyContent: "flex-start", gap: 1 }}
+              >
+                <Chip
+                  label={expense.category.name}
+                  sx={{ my: 1 }}
+                  color="secondary"
+                />
+                <Chip
+                  label={expense.project}
+                  sx={{ my: 1 }}
+                  color="secondary"
+                />
+              </Box>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+              }}
+            >
+              <Box>
+                <Typography variant="h6" component={"div"}>
+                  Description
+                </Typography>
+                <Typography component={"p"} variant="body2">
+                  {expense.description}
+                </Typography>
+              </Box>
+            </Box>
+            {/* <Divider sx={{ my: 2 }} />
+            <Typography variant="h6">Approvals</Typography> */}
+            {/* {expense.approvals?.map((approval) => (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+                key={approval.id}
+              >
+                <Typography variant="body2">{approval.users.name}</Typography>
+                <Typography
+                  color={
+                    approval.status === "approved"
+                      ? "success"
+                      : approval.status === "rejected"
+                      ? "error"
+                      : "warning"
+                  }
+                >
+                  {approval.status}
+                </Typography>
+              </Box>
+            ))} */}
+            {expense.approvals.map((approval) => {
+              if (
+                approval.status === "pending" &&
+                approval.users.id === auth.id &&
+                approval.level === expense.current_approver_level
+              ) {
+                return (
+                  <Box
+                    sx={{
+                      mt: 2,
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      gap: 1,
+                    }}
+                    key={approval.id}
+                  >
+                    <Button
+                      variant="outlined"
+                      color="success"
+                      onClick={() => {
+                        setAction("approve");
+                        handleOpen(approval);
+                      }}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => {
+                        setAction("reject");
+                        handleOpen(approval);
+                      }}
+                    >
+                      Reject
+                    </Button>
+                  </Box>
+                );
+              }
+            })}
+          </Card>
+        </Grid2>
+      );
+    });
 
   if (isLoading) {
     return (
@@ -154,386 +276,29 @@ export default function ApproverExpenseRequestList() {
         onChange={handleChange}
         aria-label="basic tabs example"
       >
-        <Tab label="Pending" {...a11yProps(0)} />
-        <Tab label="Approved" {...a11yProps(1)} />
-        <Tab label="Rejected" {...a11yProps(2)} />
+        <Tab label="All" {...a11yProps(0)} />
+        <Tab label="Pending" {...a11yProps(1)} />
+        <Tab label="Approved" {...a11yProps(2)} />
+        <Tab label="Rejected" {...a11yProps(3)} />
       </Tabs>
       <CustomTabPanel value={value} index={0}>
         <Grid2 container spacing={2}>
-          {pendingExpenseRequest?.map((expense) => {
-            const date = new Date(expense.date_submitted);
-            return (
-              <Grid2 key={expense.id} size={12}>
-                <Card sx={{ p: 2 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="h5">{expense.amount}</Typography>
-                      <Typography variant="body2">
-                        {expense.user.name}
-                      </Typography>
-                      <Typography>{date.toLocaleDateString()}</Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "flex-start",
-                        gap: 1,
-                      }}
-                    >
-                      <Chip
-                        label={expense.category.name}
-                        sx={{ my: 1 }}
-                        color="secondary"
-                      />
-                      <Chip label="Project1" sx={{ my: 1 }} color="secondary" />
-                    </Box>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="h6" component={"div"}>
-                        Description
-                      </Typography>
-                      <Typography component={"p"} variant="body2">
-                        {expense.description}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Divider sx={{ my: 2 }} />
-                  <Typography variant="h6">Approvals</Typography>
-                  {expense.approvals?.map((approval) => {
-                    return (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                        key={approval.id}
-                      >
-                        <Typography variant="body2">
-                          {approval.users.name}
-                        </Typography>
-                        <Typography
-                          color={
-                            approval.status === "approved"
-                              ? "success"
-                              : approval.status === "rejected"
-                              ? "error"
-                              : "warning"
-                          }
-                        >
-                          {approval.status}
-                        </Typography>
-                      </Box>
-                    );
-                  })}
-                  {expense.approvals.map((approval) => {
-                    if (
-                      approval.status === "pending" &&
-                      approval.users.id === auth.id &&
-                      approval.level === expense.current_approver_level
-                    ) {
-                      return (
-                        <Box
-                          sx={{
-                            mt: 2,
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            gap: 1,
-                          }}
-                          key={approval.id}
-                        >
-                          <Button
-                            variant="outlined"
-                            color="success"
-                            onClick={() => {
-                              setAction("approve");
-                              handleOpen(approval);
-                            }}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            color="error"
-                            onClick={() => {
-                              setAction("reject");
-                              handleOpen(approval);
-                            }}
-                          >
-                            Reject
-                          </Button>
-                        </Box>
-                      );
-                    }
-                  })}
-                </Card>
-              </Grid2>
-            );
-          })}
+          {renderExpenseList(data)}
         </Grid2>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         <Grid2 container spacing={2}>
-          {approvedExpenseRequest?.map((expense) => {
-            const date = new Date(expense.date_submitted);
-            return (
-              <Grid2 key={expense.id} size={12}>
-                <Card sx={{ p: 2 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="h5">{expense.amount}</Typography>
-                      <Typography variant="body2">
-                        {expense.user.name}
-                      </Typography>
-                      <Typography>{date.toLocaleDateString()}</Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "flex-start",
-                        gap: 1,
-                      }}
-                    >
-                      <Chip
-                        label={expense.category.name}
-                        sx={{ my: 1 }}
-                        color="secondary"
-                      />
-                      <Chip label="Project1" sx={{ my: 1 }} color="secondary" />
-                    </Box>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="h6" component={"div"}>
-                        Description
-                      </Typography>
-                      <Typography component={"p"} variant="body2">
-                        {expense.description}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Divider sx={{ my: 2 }} />
-                  <Typography variant="h6">Approvals</Typography>
-                  {expense.approvals?.map((approval) => {
-                    return (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                        key={approval.id}
-                      >
-                        <Typography variant="body2">
-                          {approval.users.name}
-                        </Typography>
-                        <Typography
-                          color={
-                            approval.status === "approved"
-                              ? "success"
-                              : approval.status === "rejected"
-                              ? "error"
-                              : "warning"
-                          }
-                        >
-                          {approval.status}
-                        </Typography>
-                      </Box>
-                    );
-                  })}
-                  {expense.approvals.map((approval) => {
-                    if (
-                      approval.status === "pending" &&
-                      approval.users.id === auth.id &&
-                      approval.level === expense.current_approver_level
-                    ) {
-                      return (
-                        <Box
-                          sx={{
-                            mt: 2,
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            gap: 1,
-                          }}
-                          key={approval.id}
-                        >
-                          <Button
-                            variant="outlined"
-                            color="success"
-                            onClick={() => {
-                              setAction("approve");
-                              handleOpen(approval);
-                            }}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            color="error"
-                            onClick={() => {
-                              setAction("reject");
-                              handleOpen(approval);
-                            }}
-                          >
-                            Reject
-                          </Button>
-                        </Box>
-                      );
-                    }
-                  })}
-                </Card>
-              </Grid2>
-            );
-          })}
+          {renderExpenseList(pendingExpenseRequest)}
         </Grid2>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
         <Grid2 container spacing={2}>
-          {rejectedExpenseRequest?.map((expense) => {
-            const date = new Date(expense.date_submitted);
-            return (
-              <Grid2 key={expense.id} size={12}>
-                <Card sx={{ p: 2 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="h5">{expense.amount}</Typography>
-                      <Typography variant="body2">
-                        {expense.user.name}
-                      </Typography>
-                      <Typography>{date.toLocaleDateString()}</Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "flex-start",
-                        gap: 1,
-                      }}
-                    >
-                      <Chip
-                        label={expense.category.name}
-                        sx={{ my: 1 }}
-                        color="secondary"
-                      />
-                      <Chip label="Project1" sx={{ my: 1 }} color="secondary" />
-                    </Box>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="h6" component={"div"}>
-                        Description
-                      </Typography>
-                      <Typography component={"p"} variant="body2">
-                        {expense.description}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Divider sx={{ my: 2 }} />
-                  <Typography variant="h6">Approvals</Typography>
-                  {expense.approvals?.map((approval) => {
-                    return (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                        key={approval.id}
-                      >
-                        <Typography variant="body2">
-                          {approval.users.name}
-                        </Typography>
-                        <Typography
-                          color={
-                            approval.status === "approved"
-                              ? "success"
-                              : approval.status === "rejected"
-                              ? "error"
-                              : "warning"
-                          }
-                        >
-                          {approval.status}
-                        </Typography>
-                      </Box>
-                    );
-                  })}
-                  {expense.approvals.map((approval) => {
-                    if (
-                      approval.status === "pending" &&
-                      approval.users.id === auth.id &&
-                      approval.level === expense.current_approver_level
-                    ) {
-                      return (
-                        <Box
-                          sx={{
-                            mt: 2,
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            gap: 1,
-                          }}
-                          key={approval.id}
-                        >
-                          <Button
-                            variant="outlined"
-                            color="success"
-                            onClick={() => {
-                              setAction("approve");
-                              handleOpen(approval);
-                            }}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            color="error"
-                            onClick={() => {
-                              setAction("reject");
-                              handleOpen(approval);
-                            }}
-                          >
-                            Reject
-                          </Button>
-                        </Box>
-                      );
-                    }
-                  })}
-                </Card>
-              </Grid2>
-            );
-          })}
+          {renderExpenseList(approvedExpenseRequest)}
+        </Grid2>
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={3}>
+        <Grid2 container spacing={2}>
+          {renderExpenseList(rejectedExpenseRequest)}
         </Grid2>
       </CustomTabPanel>
       <Modal open={open} onClose={handleClose}>
