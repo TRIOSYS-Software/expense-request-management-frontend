@@ -1,4 +1,12 @@
-import { ExpandMore } from "@mui/icons-material";
+import {
+  AddAlert,
+  ExpandLess,
+  ExpandMore,
+  Pending,
+  RampRight,
+  ThumbDown,
+  ThumbUp,
+} from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -21,11 +29,13 @@ import { useApp } from "../ThemedApp";
 
 export default function ExpenseRequestList() {
   const { auth } = useApp();
-  const { data, isLoading, isError, error } = useQuery("expenses", () =>
-    fetchExpenseRequestsByUserID(auth.id)
-  );
-
-  console.log(data);
+  const { data, isLoading, isError, error } = useQuery("expenses", () => {
+    if (auth.role === 1) {
+      return fetchExpenseRequests();
+    } else {
+      return fetchExpenseRequestsByUserID(auth.id);
+    }
+  });
 
   if (isLoading) {
     return (
@@ -46,7 +56,7 @@ export default function ExpenseRequestList() {
   return (
     <Box>
       {data.map((expense) => (
-        <ExpenseCard key={expense.id} {...expense} />
+        <ExpenseCard key={expense.id} auth={auth} {...expense} />
       ))}
     </Box>
   );
@@ -62,27 +72,40 @@ const ExpenseCard = ({
   category,
   date_submitted,
   approvals,
+  auth,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const date = new Date(date_submitted);
   return (
     <Box sx={{ mt: 2 }}>
       <Card
-        sx={{ p: 2, display: "flex", justifyContent: "space-between" }}
+        sx={{
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
         onClick={() => {
           setExpanded(!expanded);
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
-          <Box>
-            <Typography variant="h6">{amount}</Typography>
-            <Typography variant="body2">{category?.name || "-"}</Typography>
-          </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 2,
+          }}
+        >
           <Box>
             <Typography variant="h6">{user?.name || "-"}</Typography>
             <Typography variant="body2">
               Project: {project || "----"}
             </Typography>
+          </Box>
+          <Box>
+            <Typography variant="h6">{amount}</Typography>
+            <Typography variant="body2">{category?.name || "-"}</Typography>
           </Box>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -101,7 +124,7 @@ const ExpenseCard = ({
               }
             />
           </Box>
-          <ExpandMore />
+          {expanded ? <ExpandLess /> : <ExpandMore />}
         </Box>
       </Card>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
@@ -112,21 +135,23 @@ const ExpenseCard = ({
               <Typography variant="h6">Description</Typography>
               <Typography variant="body2">{description}</Typography>
             </Box>
-            {/* <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <Button size="small" variant="contained" color="primary">
-                Approve
-              </Button>
-              <Button size="small" variant="contained" color="error">
-                Reject
-              </Button>
-            </Box> */}
+            {/* {auth.id === 2 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+              >
+                <Button size="small" variant="contained" color="primary">
+                  Approve
+                </Button>
+                <Button size="small" variant="contained" color="error">
+                  Reject
+                </Button>
+              </Box>
+            )} */}
           </Box>
           <Box sx={{ p: 2 }}>
             <Typography variant="h6">Comments</Typography>
@@ -144,7 +169,14 @@ const ExpenseCard = ({
                   {approval.comments || "no comment yet"}
                 </Typography>
                 <Typography variant="body2">
-                  {approval.users?.name || "----"}
+                  {approval.users?.name || "----"}{" "}
+                  {approval.status === "pending" ? (
+                    <Pending color="warning" />
+                  ) : approval.status === "approved" ? (
+                    <ThumbUp color="success" />
+                  ) : (
+                    <ThumbDown color="error" />
+                  )}
                 </Typography>
               </Box>
             ))}

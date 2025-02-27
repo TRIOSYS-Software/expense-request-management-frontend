@@ -216,6 +216,23 @@ export async function fetchExpenseRequests(){
     return res.data;
 }
 
+export async function fetchExpenseRequestsSummary(params, user){
+    if (user.role === 3){
+        params.user_id = user.id;
+    }
+    if (user.role === 2) {
+        params.approver_id = user.id;
+    }
+    console.log(params)
+    const res = await axios.get(`${api}/expense-requests/summary`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        },
+        params
+    });
+    return res.data;
+}
+
 export async function fetchExpenseRequestsByApproverID(id){
     const res = await axios.get(`${api}/expense-requests/approver/${id}`, {
         headers: {
