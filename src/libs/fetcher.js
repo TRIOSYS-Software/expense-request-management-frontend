@@ -171,6 +171,16 @@ export async function getProjects(){
     return res.data;
 }
 
+export async function getPaymentMethods(){
+    const encryptedKey = await encrypt(secret, key);
+    const res = await axios.get(`${sqlAccApi}/payment-methods`, {
+        headers: {
+            'ShweTaik': `${encryptedKey}`
+        }
+    });
+    return res.data;
+}
+
 export async function fetchPolicies() {
     const res = await axios.get(`${api}/approval-policies`, {
         headers: {
@@ -216,6 +226,15 @@ export async function fetchExpenseRequests(){
     return res.data;
 }
 
+export async function fetchExpenseRequestsByID(id){
+    const res = await axios.get(`${api}/expense-requests/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
 export async function fetchExpenseRequestsSummary(params, user){
     if (user.role === 3){
         params.user_id = user.id;
@@ -223,7 +242,6 @@ export async function fetchExpenseRequestsSummary(params, user){
     if (user.role === 2) {
         params.approver_id = user.id;
     }
-    console.log(params)
     const res = await axios.get(`${api}/expense-requests/summary`, {
         headers: {
             'Authorization': `${getToken()}`
@@ -244,6 +262,15 @@ export async function fetchExpenseRequestsByApproverID(id){
 
 export async function fetchExpenseRequestsByUserID(id){
     const res = await axios.get(`${api}/expense-requests/user/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function sendtoSQLACC(data){
+    const res = await axios.post(`${api}/expense-requests/send-to-sqlacc`, data, {
         headers: {
             'Authorization': `${getToken()}`
         }

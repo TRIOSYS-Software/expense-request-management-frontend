@@ -9,7 +9,7 @@ export default function BarChart() {
   const { auth } = useApp();
   const currentDate = new Date();
   const previousDate = new Date(
-    currentDate.getTime() - 7 * 24 * 60 * 60 * 1000
+    currentDate.getTime() - 14 * 24 * 60 * 60 * 1000
   );
 
   const startDate = previousDate.toISOString().split("T")[0];

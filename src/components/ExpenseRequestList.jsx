@@ -1,9 +1,11 @@
 import {
   AddAlert,
+  Check,
   ExpandLess,
   ExpandMore,
   Pending,
   RampRight,
+  RampRightRounded,
   ThumbDown,
   ThumbUp,
 } from "@mui/icons-material";
@@ -17,8 +19,12 @@ import {
   Collapse,
   Divider,
   IconButton,
+  Tab,
+  Tabs,
+  Tooltip,
   Typography,
 } from "@mui/material";
+import PropTypes from "prop-types";
 import { useState } from "react";
 import {
   fetchExpenseRequests,
@@ -27,7 +33,37 @@ import {
 import { useQuery } from "react-query";
 import { useApp } from "../ThemedApp";
 
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box>{children}</Box>}
+    </div>
+  );
+}
+
+CustomTabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
+
 export default function ExpenseRequestList() {
+  const [value, setValue] = useState(0);
   const { auth } = useApp();
   const { data, isLoading, isError, error } = useQuery("expenses", () => {
     if (auth.role === 1) {
@@ -36,6 +72,14 @@ export default function ExpenseRequestList() {
       return fetchExpenseRequestsByUserID(auth.id);
     }
   });
+
+  const filterByStatus = (status) => {
+    return data.filter((expense) => expense.status === status);
+  };
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
   if (isLoading) {
     return (
@@ -55,9 +99,32 @@ export default function ExpenseRequestList() {
 
   return (
     <Box>
-      {data.map((expense) => (
-        <ExpenseCard key={expense.id} auth={auth} {...expense} />
-      ))}
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          aria-label="basic tabs example"
+        >
+          <Tab label="Pending" {...a11yProps(0)} />
+          <Tab label="Approved" {...a11yProps(1)} />
+          <Tab label="Rejected" {...a11yProps(2)} />
+        </Tabs>
+      </Box>
+      <CustomTabPanel value={value} index={0}>
+        {filterByStatus("pending").map((expense) => (
+          <ExpenseCard key={expense.id} auth={auth} {...expense} />
+        ))}
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={1}>
+        {filterByStatus("approved").map((expense) => (
+          <ExpenseCard key={expense.id} auth={auth} {...expense} />
+        ))}
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={2}>
+        {filterByStatus("rejected").map((expense) => (
+          <ExpenseCard key={expense.id} auth={auth} {...expense} />
+        ))}
+      </CustomTabPanel>
     </Box>
   );
 }
@@ -72,6 +139,7 @@ const ExpenseCard = ({
   category,
   date_submitted,
   approvals,
+  is_send_to_sql_acc,
   auth,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -94,9 +162,13 @@ const ExpenseCard = ({
           sx={{
             display: "flex",
             justifyContent: "space-between",
+            alignItems: "center",
             gap: 2,
           }}
         >
+          <Box>
+            <Typography variant="body1">ID - {id}</Typography>
+          </Box>
           <Box>
             <Typography variant="h6">{user?.name || "-"}</Typography>
             <Typography variant="body2">
@@ -109,6 +181,11 @@ const ExpenseCard = ({
           </Box>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {is_send_to_sql_acc && (
+            <Tooltip title="Sent to SQLACC">
+              <Check color="success" />
+            </Tooltip>
+          )}
           <Typography variant="body2">
             Submitted Date: {date.toLocaleDateString()}
           </Typography>

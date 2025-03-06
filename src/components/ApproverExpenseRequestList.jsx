@@ -21,6 +21,7 @@ import {
 import { queryClient, useApp } from "../ThemedApp";
 import { useMutation, useQuery } from "react-query";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const style = {
   position: "absolute",
@@ -68,6 +69,7 @@ export default function ApproverExpenseRequestList() {
   const [comments, setComments] = useState("");
   const [selected, setSelected] = useState(null);
   const { auth, setGlobalMsg } = useApp();
+  const navigate = useNavigate();
 
   const { data, isLoading, isError, setError } = useQuery(
     "expense-requests",
@@ -243,6 +245,26 @@ export default function ApproverExpenseRequestList() {
                       }}
                     >
                       Reject
+                    </Button>
+                  </Box>
+                );
+              }
+              if (
+                expense.status === "approved" &&
+                approval.users.id === auth.id &&
+                approval.is_final === true
+              ) {
+                return (
+                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button
+                      onClick={() => {
+                        navigate(`/expenses/${expense.id}/send-to-sqlacc`);
+                      }}
+                      variant="outlined"
+                      color="primary"
+                      disabled={expense.is_send_to_sql_acc === true}
+                    >
+                      Send To SQL ACC
                     </Button>
                   </Box>
                 );

@@ -17,6 +17,7 @@ import PolicyForm from "./pages/PolicyForm";
 import AdminRoute from "./pages/AdminRoute";
 import Categories from "./pages/Categories";
 import Departments from "./pages/Departments";
+import ExpenseFormToSQLACC from "./pages/ExpenseFormToSQLACC";
 
 const theme = createTheme({
   palette: {
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       {
         path: "/expenses/form",
         element: <ExpenseForm />,
+      },
+      {
+        path: "/expenses/:id/send-to-sqlacc",
+        element: <ExpenseFormToSQLACC />,
       },
       {
         path: "/users",
