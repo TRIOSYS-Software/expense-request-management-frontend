@@ -20,14 +20,18 @@ import { useMutation, useQueries, useQuery } from "react-query";
 import {
   createExpense,
   fetchExpenseCategories,
+  fetchExpenseRequestsByID,
   fetchUsers,
   getProjects,
+  updateExpense,
 } from "../libs/fetcher";
 import { useForm, Controller } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useApp } from "../ThemedApp";
+import { useEffect } from "react";
 
 const ExpenseForm = () => {
+  const { id } = useParams();
   const { auth, setGlobalMsg } = useApp();
   const navigate = useNavigate();
 
@@ -51,6 +55,14 @@ const ExpenseForm = () => {
   const [expenseCategories, projects, users] = results;
 
   const approvers = users.data?.filter((user) => user.roles.id === 2);
+
+  const { data } = useQuery(
+    ["expense", id],
+    () => fetchExpenseRequestsByID(id),
+    {
+      enabled: !!id,
+    }
+  );
 
   const {
     register,
@@ -83,6 +95,32 @@ const ExpenseForm = () => {
     },
   });
 
+  const update = useMutation(async (data) => updateExpense(id, data), {
+    onSuccess: async (data) => {
+      setGlobalMsg("Expense updated successfully!");
+      navigate(-1);
+    },
+    onError: (error) => {
+      setError("root", {
+        message: error.message,
+      });
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      const date = new Date(data.date_submitted).toISOString().split("T")[0];
+      reset({
+        amount: data.amount,
+        category: data.category_id,
+        description: data.description,
+        project: data.project,
+        submittedDate: date,
+        approver: data.approvers?.split(",") || [],
+      });
+    }
+  }, [data]);
+
   const onSubmit = (data) => {
     const date = new Date(data.submittedDate);
     const request = {
@@ -94,7 +132,12 @@ const ExpenseForm = () => {
       approvers: data.approver?.join(",") || null,
       user_id: auth.id,
     };
-    create.mutate(request);
+    // console.log(request);
+    if (id) {
+      update.mutate(request);
+    } else {
+      create.mutate(request);
+    }
   };
 
   if (expenseCategories.isLoading || projects.isLoading || users.isLoading) {
@@ -180,6 +223,7 @@ const ExpenseForm = () => {
                   value > 0 || "Amount must be greater than 0",
               })}
               fullWidth
+              slotProps={{ inputLabel: { shrink: true } }}
             />
             {errors.amount && (
               <Typography variant="body2" color="error">
@@ -216,6 +260,7 @@ const ExpenseForm = () => {
                 required: "Description is required",
               })}
               fullWidth
+              slotProps={{ inputLabel: { shrink: true } }}
             />
             {errors.description && (
               <Typography variant="body2" color="error">
@@ -241,7 +286,7 @@ const ExpenseForm = () => {
               )}
             />
           </Grid>
-          <Grid size={12}>
+          {/* <Grid size={12}>
             <Controller
               name="approver"
               control={control}
@@ -292,7 +337,7 @@ const ExpenseForm = () => {
                 {errors.approver.message}
               </Typography>
             )}
-          </Grid>
+          </Grid> */}
         </Grid>
         <Box
           display="flex"

@@ -21,9 +21,7 @@ export default function Expenses() {
           display: "flex",
         }}
       >
-        <Typography variant={{ sm: "h6", md: "h5" }}>
-          Expenses Requests List
-        </Typography>
+        <Typography variant="h5">Expenses Requests List</Typography>
         {auth.role !== 3 ? (
           <Box>Search</Box>
         ) : (

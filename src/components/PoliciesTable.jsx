@@ -23,8 +23,10 @@ import {
 import { Delete, Edit } from "@mui/icons-material";
 import { useApp } from "../ThemedApp";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function PoliciesTable() {
+  const navigate = useNavigate();
   const { setGlobalMsg } = useApp();
   const { data, isLoading, isError, error } = useQuery("rules", fetchPolicies);
 
@@ -67,7 +69,7 @@ export function PoliciesTable() {
               <TableCell>Id</TableCell>
               <TableCell>Condition Type</TableCell>
               <TableCell>Condition Value</TableCell>
-              <TableCell>Approver Roles</TableCell>
+              <TableCell>Approvers</TableCell>
               <TableCell>For Department</TableCell>
               <TableCell>Priority</TableCell>
               <TableCell>Actions</TableCell>
@@ -86,14 +88,23 @@ export function PoliciesTable() {
                   )}
                 </TableCell>
                 <TableCell>
-                  {rule.approvers.map((approver, index) => (
-                    <Chip key={index} label={approver.name} sx={{ mr: 1 }} />
+                  {rule.policy_users.map((approver, index) => (
+                    <Chip
+                      key={index}
+                      label={approver.Approver.name}
+                      sx={{ mr: 1 }}
+                    />
                   ))}
                 </TableCell>
                 <TableCell>{rule.departments.name || "-"}</TableCell>
                 <TableCell>{rule.priority}</TableCell>
                 <TableCell>
-                  <IconButton color="primary">
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      navigate(`/policies/form/${rule.id}`);
+                    }}
+                  >
                     <Edit />
                   </IconButton>
                   <IconButton

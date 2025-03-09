@@ -190,8 +190,26 @@ export async function fetchPolicies() {
     return res.data;
 }
 
+export async function fetchPolicyById(id) {
+    const res = await axios.get(`${api}/approval-policies/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
 export async function createPolicy(data){
     const res = await axios.post(`${api}/approval-policies`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function updatePolicy(id, data){
+    const res = await axios.put(`${api}/approval-policies/${id}`, data, {
         headers: {
             'Authorization': `${getToken()}`
         }
@@ -210,6 +228,15 @@ export async function deletePolicy(id){
 
 export async function createExpense(data){
     const res = await axios.post(`${api}/expense-requests`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function updateExpense(id, data){
+    const res = await axios.put(`${api}/expense-requests/${id}`, data, {
         headers: {
             'Authorization': `${getToken()}`
         }

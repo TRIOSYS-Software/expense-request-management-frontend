@@ -32,6 +32,7 @@ import {
 } from "../libs/fetcher";
 import { useQuery } from "react-query";
 import { useApp } from "../ThemedApp";
+import { useNavigate } from "react-router-dom";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -73,10 +74,6 @@ export default function ExpenseRequestList() {
     }
   });
 
-  const filterByStatus = (status) => {
-    return data.filter((expense) => expense.status === status);
-  };
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -97,6 +94,10 @@ export default function ExpenseRequestList() {
     );
   }
 
+  const filterByStatus = (status) => {
+    return data?.filter((expense) => expense.status === status);
+  };
+
   return (
     <Box>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -111,17 +112,17 @@ export default function ExpenseRequestList() {
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>
-        {filterByStatus("pending").map((expense) => (
+        {filterByStatus("pending")?.map((expense) => (
           <ExpenseCard key={expense.id} auth={auth} {...expense} />
         ))}
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        {filterByStatus("approved").map((expense) => (
+        {filterByStatus("approved")?.map((expense) => (
           <ExpenseCard key={expense.id} auth={auth} {...expense} />
         ))}
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
-        {filterByStatus("rejected").map((expense) => (
+        {filterByStatus("rejected")?.map((expense) => (
           <ExpenseCard key={expense.id} auth={auth} {...expense} />
         ))}
       </CustomTabPanel>
@@ -144,6 +145,7 @@ const ExpenseCard = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const date = new Date(date_submitted);
+  const navigate = useNavigate();
   return (
     <Box sx={{ mt: 2 }}>
       <Card
@@ -181,14 +183,14 @@ const ExpenseCard = ({
           </Box>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Typography variant="body2">
+            Submitted Date: {date.toLocaleDateString()}
+          </Typography>
           {is_send_to_sql_acc && (
             <Tooltip title="Sent to SQLACC">
               <Check color="success" />
             </Tooltip>
           )}
-          <Typography variant="body2">
-            Submitted Date: {date.toLocaleDateString()}
-          </Typography>
           <Box>
             <Chip
               label={status}
@@ -212,23 +214,27 @@ const ExpenseCard = ({
               <Typography variant="h6">Description</Typography>
               <Typography variant="body2">{description}</Typography>
             </Box>
-            {/* {auth.id === 2 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: 2,
-                }}
-              >
-                <Button size="small" variant="contained" color="primary">
-                  Approve
+            {status === "pending" && auth.role === 3 && (
+              <Box>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => {
+                    navigate(`/expenses/form/${id}`);
+                  }}
+                >
+                  Edit
                 </Button>
-                <Button size="small" variant="contained" color="error">
-                  Reject
+                <Button
+                  sx={{ ml: 2 }}
+                  variant="contained"
+                  size="small"
+                  color="error"
+                >
+                  Delete
                 </Button>
               </Box>
-            )} */}
+            )}
           </Box>
           <Box sx={{ p: 2 }}>
             <Typography variant="h6">Comments</Typography>

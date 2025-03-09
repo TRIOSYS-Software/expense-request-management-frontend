@@ -47,6 +47,10 @@ const router = createBrowserRouter([
         element: <ExpenseForm />,
       },
       {
+        path: "/expenses/form/:id",
+        element: <ExpenseForm />,
+      },
+      {
         path: "/expenses/:id/send-to-sqlacc",
         element: <ExpenseFormToSQLACC />,
       },
@@ -84,6 +88,14 @@ const router = createBrowserRouter([
       },
       {
         path: "/policies/form",
+        element: (
+          <AdminRoute>
+            <PolicyForm />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/policies/form/:id",
         element: (
           <AdminRoute>
             <PolicyForm />

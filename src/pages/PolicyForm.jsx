@@ -20,16 +20,20 @@ import {
   createPolicy,
   fetchDeparments,
   fetchExpenseCategories,
+  fetchPolicyById,
   fetchRoles,
   fetchUsersByRole,
   getProjects,
+  updatePolicy,
 } from "../libs/fetcher";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ArrowBackIos, Send } from "@mui/icons-material";
 import { useApp } from "../ThemedApp";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 function PolicyForm() {
+  const { id } = useParams();
   const { setGlobalMsg } = useApp();
   const navigate = useNavigate();
   const queries = [
@@ -62,6 +66,7 @@ function PolicyForm() {
     setError,
     formState: { errors, isSubmitting },
     reset,
+    watch,
   } = useForm({
     defaultValues: {
       approvers: [],
@@ -72,10 +77,38 @@ function PolicyForm() {
     },
   });
 
+  const { data } = useQuery(["policy", id], () => fetchPolicyById(id), {
+    enabled: !!id,
+  });
+
+  useEffect(() => {
+    if (data) {
+      console.log(data);
+      reset({
+        approvers: data.policy_users?.map((r) => r.Approver.id),
+        department: data.department,
+        conditionType: data.condition_type,
+        conditionValue: data.condition_value,
+        priority: data.priority,
+        project: data.project,
+      });
+    }
+  }, [data]);
+
   const create = useMutation(async (data) => createPolicy(data), {
     onSuccess: (data) => {
       setGlobalMsg("Policy created successfully!");
       reset();
+    },
+    onError: (error) => {
+      setError("root", { message: error.message });
+    },
+  });
+
+  const update = useMutation(async (data) => updatePolicy(id, data), {
+    onSuccess: (data) => {
+      setGlobalMsg("Policy updated successfully!");
+      navigate(-1);
     },
     onError: (error) => {
       setError("root", { message: error.message });
@@ -88,12 +121,19 @@ function PolicyForm() {
       condition_value: `${data.conditionValue}`,
       department: data.department || null,
       priority: parseInt(data.priority),
-      approvers: data.approvers.map((r) => {
-        return { id: r };
+      approvers: data.approvers.map((r, index) => {
+        return {
+          approver_id: r,
+          level: index + 1,
+        };
       }),
     };
     // console.log(request);
-    create.mutate(request);
+    if (id) {
+      update.mutate(request);
+    } else {
+      create.mutate(request);
+    }
   };
 
   const watchedField = useWatch({
@@ -271,6 +311,7 @@ function PolicyForm() {
           <Grid2 size={{ xs: 12, md: 6 }}>
             <TextField
               label="Priority"
+              slotProps={{ inputLabel: { shrink: true } }}
               type="number"
               variant="outlined"
               {...register("priority", { required: "Priority is required!" })}
@@ -332,7 +373,7 @@ function PolicyForm() {
         >
           <Button
             sx={{ mr: 2 }}
-            onClick={() => navigate("/policies")}
+            onClick={() => navigate(-1)}
             variant="contained"
             startIcon={<ArrowBackIos />}
           >
