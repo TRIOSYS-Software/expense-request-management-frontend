@@ -114,35 +114,11 @@ function UsersTable() {
             <TableBody>
               {filterdUsers.map((user, index) => (
                 <TableRow key={index}>
-                  {Object.keys(user)
-                    .filter(
-                      (key) =>
-                        ![
-                          "password",
-                          "created_at",
-                          "updated_at",
-                          "role",
-                          "department",
-                        ].includes(key)
-                    )
-                    .map((key) => {
-                      if (key === "roles") {
-                        return (
-                          <TableCell key={key}>{user[key].name}</TableCell>
-                        );
-                      }
-                      if (key === "departments") {
-                        return (
-                          <TableCell key={key}>
-                            {user[key].name || "-"}
-                          </TableCell>
-                        );
-                      }
-                      if (key === "id") {
-                        return <TableCell key={key}>{index + 1}</TableCell>;
-                      }
-                      return <TableCell key={key}>{user[key]}</TableCell>;
-                    })}
+                  <TableCell>{user.id}</TableCell>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.roles?.name}</TableCell>
+                  <TableCell>{user.departments?.name || "-"}</TableCell>
                   <TableCell>
                     <IconButton
                       color="primary"

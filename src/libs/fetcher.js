@@ -229,7 +229,8 @@ export async function deletePolicy(id){
 export async function createExpense(data){
     const res = await axios.post(`${api}/expense-requests`, data, {
         headers: {
-            'Authorization': `${getToken()}`
+            'Authorization': `${getToken()}`,
+            "Content-Type": 'multipart/form-data',
         }
     });
     return res.data;
@@ -301,6 +302,25 @@ export async function sendtoSQLACC(data){
         headers: {
             'Authorization': `${getToken()}`
         }
+    });
+    return res.data;
+}
+
+export async function deleteExpenseRequest(id){
+    const res = await axios.delete(`${api}/expense-requests/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function fetchExpenseAttachment(file){
+    const res = await axios.get(`${api}/expense-requests/attachment/${file}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        },
+        responseType: 'blob'
     });
     return res.data;
 }

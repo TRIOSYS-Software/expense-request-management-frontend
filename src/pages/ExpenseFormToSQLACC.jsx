@@ -42,6 +42,8 @@ export default function ExpenseFormToSQLACC() {
 
   const [expenseRequest, paymentMethods] = results;
 
+  console.log(paymentMethods);
+
   const [paymentMethod, setPaymentMethod] = useState("");
 
   const sendToSQLACC = useMutation(sendtoSQLACC, {

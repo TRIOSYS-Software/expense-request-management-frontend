@@ -14,8 +14,9 @@ import {
   OutlinedInput,
   Chip,
   FormHelperText,
+  IconButton,
 } from "@mui/material";
-import { Send, ArrowBackIos } from "@mui/icons-material";
+import { Send, ArrowBackIos, BackHand, ArrowBack } from "@mui/icons-material";
 import { useMutation, useQueries, useQuery } from "react-query";
 import {
   createExpense,
@@ -123,20 +124,28 @@ const ExpenseForm = () => {
 
   const onSubmit = (data) => {
     const date = new Date(data.submittedDate);
-    const request = {
-      amount: parseInt(data.amount),
-      category_id: data.category,
-      description: data.description,
-      project: data.project,
-      date_submitted: date.toISOString(),
-      approvers: data.approver?.join(",") || null,
-      user_id: auth.id,
-    };
+    const formData = new FormData();
+    formData.append("amount", data.amount);
+    formData.append("category_id", data.category);
+    formData.append("description", data.description);
+    formData.append("project", data.project);
+    formData.append("date_submitted", date.toISOString());
+    formData.append("attachment", data.attachment);
+    formData.append("user_id", auth.id);
+    // const request = {
+    //   amount: parseFloat(data.amount),
+    //   category_id: data.category,
+    //   description: data.description,
+    //   project: data.project,
+    //   date_submitted: date.toISOString(),
+    //   approvers: data.approver?.join(",") || null,
+    //   user_id: auth.id,
+    // };
     // console.log(request);
     if (id) {
-      update.mutate(request);
+      update.mutate(formData);
     } else {
-      create.mutate(request);
+      create.mutate(formData);
     }
   };
 
@@ -168,7 +177,16 @@ const ExpenseForm = () => {
       sx={{ maxWidth: "md", mx: "auto" }}
     >
       <Paper elevation={24} sx={{ p: 2, my: 2 }}>
-        <Typography variant="h5">Expense Form</Typography>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <IconButton
+            onClick={() => {
+              navigate(-1);
+            }}
+          >
+            <ArrowBack />
+          </IconButton>
+          <Typography variant="h5">Expense Form</Typography>
+        </Box>
         <Grid container spacing={2} sx={{ my: 2 }}>
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
@@ -223,7 +241,10 @@ const ExpenseForm = () => {
                   value > 0 || "Amount must be greater than 0",
               })}
               fullWidth
-              slotProps={{ inputLabel: { shrink: true } }}
+              slotProps={{
+                inputLabel: { shrink: true },
+                input: { inputProps: { step: 0.0001 } },
+              }}
             />
             {errors.amount && (
               <Typography variant="body2" color="error">
@@ -237,7 +258,7 @@ const ExpenseForm = () => {
               <Controller
                 name="category"
                 control={control}
-                // rules={{ required: "Category is required" }}
+                rules={{ required: "Category is required" }}
                 render={({ field }) => (
                   <Select labelId="category-label" label="Category" {...field}>
                     <MenuItem value="">Choose an option</MenuItem>
@@ -250,6 +271,11 @@ const ExpenseForm = () => {
                 )}
               />
             </FormControl>
+            {errors.category && (
+              <Typography variant="body2" color="error">
+                {errors.category.message}
+              </Typography>
+            )}
           </Grid>
           <Grid size={12}>
             <TextField

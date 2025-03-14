@@ -148,6 +148,7 @@ function UserForm() {
                   message: "Name must be at least 3 characters",
                 },
               })}
+              slotProps={id && { inputLabel: { shrink: true } }}
               label="Name"
               // slotProps={{ inputLabel: { shrink: true } }}
               fullWidth
@@ -168,6 +169,7 @@ function UserForm() {
                 },
               })}
               label="Email"
+              slotProps={id && { inputLabel: { shrink: true } }}
               fullWidth
             />
             {errors.email && (

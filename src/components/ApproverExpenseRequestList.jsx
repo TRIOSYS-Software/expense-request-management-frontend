@@ -140,7 +140,10 @@ export default function ApproverExpenseRequestList() {
             >
               <Box>
                 <Typography variant="h5">
-                  {expense.amount}{" "}
+                  {expense.amount.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 4,
+                  })}{" "}
                   <Chip
                     label={expense.status}
                     color={

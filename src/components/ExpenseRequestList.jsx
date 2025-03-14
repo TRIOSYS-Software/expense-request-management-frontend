@@ -27,11 +27,13 @@ import {
 import PropTypes from "prop-types";
 import { useState } from "react";
 import {
+  deleteExpenseRequest,
+  fetchExpenseAttachment,
   fetchExpenseRequests,
   fetchExpenseRequestsByUserID,
 } from "../libs/fetcher";
-import { useQuery } from "react-query";
-import { useApp } from "../ThemedApp";
+import { useMutation, useQuery } from "react-query";
+import { queryClient, useApp } from "../ThemedApp";
 import { useNavigate } from "react-router-dom";
 
 function CustomTabPanel(props) {
@@ -139,6 +141,7 @@ const ExpenseCard = ({
   status,
   category,
   date_submitted,
+  attachment,
   approvals,
   is_send_to_sql_acc,
   auth,
@@ -146,6 +149,38 @@ const ExpenseCard = ({
   const [expanded, setExpanded] = useState(false);
   const date = new Date(date_submitted);
   const navigate = useNavigate();
+  const { setGlobalMsg } = useApp();
+  const deleteExpense = useMutation(
+    async (id) => await deleteExpenseRequest(id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("expenses");
+        setGlobalMsg("Expense deleted successfully!");
+      },
+      onError: () => {
+        setGlobalMsg("Expense deletion failed!");
+      },
+    }
+  );
+
+  const handleView = async (file) => {
+    try {
+      const blob = await fetchExpenseAttachment(file);
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Open the file in a new tab
+      window.open(url, "_blank");
+
+      // Clean up (optional, but recommended)
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error viewing file:", error);
+      alert("Failed to open the file. Please try again later.");
+    }
+  };
+
   return (
     <Box sx={{ mt: 2 }}>
       <Card
@@ -178,7 +213,12 @@ const ExpenseCard = ({
             </Typography>
           </Box>
           <Box>
-            <Typography variant="h6">{amount}</Typography>
+            <Typography variant="h6">
+              {amount.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 4,
+              })}
+            </Typography>
             <Typography variant="body2">{category?.name || "-"}</Typography>
           </Box>
         </Box>
@@ -230,10 +270,31 @@ const ExpenseCard = ({
                   variant="contained"
                   size="small"
                   color="error"
+                  onClick={() => {
+                    deleteExpense.mutate(id);
+                  }}
                 >
                   Delete
                 </Button>
               </Box>
+            )}
+          </Box>
+          <Box sx={{ p: 2 }}>
+            <Typography variant="h6">Attachment</Typography>
+            {attachment ? (
+              <Button
+                variant="contained"
+                size="small"
+                color="primary"
+                onClick={() => {
+                  handleView(attachment);
+                }}
+                download
+              >
+                View
+              </Button>
+            ) : (
+              <Typography variant="body2">----</Typography>
             )}
           </Box>
           <Box sx={{ p: 2 }}>
