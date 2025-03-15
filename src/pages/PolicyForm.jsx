@@ -31,6 +31,7 @@ import { ArrowBackIos, Send } from "@mui/icons-material";
 import { useApp } from "../ThemedApp";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
+import { parse } from "date-fns";
 
 function PolicyForm() {
   const { id } = useParams();
@@ -71,8 +72,6 @@ function PolicyForm() {
     defaultValues: {
       approvers: [],
       department: "",
-      conditionType: "amount",
-      conditionValue: "",
       project: "",
     },
   });
@@ -87,8 +86,8 @@ function PolicyForm() {
       reset({
         approvers: data.policy_users?.map((r) => r.Approver.id),
         department: data.department,
-        conditionType: data.condition_type,
-        conditionValue: data.condition_value,
+        min_amount: data.min_amount,
+        max_amount: data.max_amount,
         priority: data.priority,
         project: data.project,
       });
@@ -101,7 +100,11 @@ function PolicyForm() {
       reset();
     },
     onError: (error) => {
-      setError("root", { message: error.message });
+      if (error.response && error.response.data) {
+        setError("root", { message: error.response.data });
+      } else {
+        setError("root", { message: error.message });
+      }
     },
   });
 
@@ -111,16 +114,20 @@ function PolicyForm() {
       navigate(-1);
     },
     onError: (error) => {
-      setError("root", { message: error.message });
+      if (error.response && error.response.data) {
+        setError("root", { message: error.response.data });
+      } else {
+        setError("root", { message: error.message });
+      }
     },
   });
 
   const onSubmit = (data) => {
     const request = {
-      condition_type: data.conditionType,
-      condition_value: `${data.conditionValue}`,
-      department: data.department || null,
-      priority: parseInt(data.priority),
+      min_amount: parseInt(data.min_amount),
+      max_amount: parseInt(data.max_amount),
+      project: data.project,
+      department_id: data.department || null,
       approvers: data.approvers.map((r, index) => {
         return {
           approver_id: r,
@@ -138,8 +145,7 @@ function PolicyForm() {
 
   const watchedField = useWatch({
     control,
-    name: "conditionType",
-    defaultValue: "amount",
+    name: "min_amount",
   });
 
   if (
@@ -178,7 +184,7 @@ function PolicyForm() {
         <Typography variant="h5">Policy Form</Typography>
         <Grid2 container spacing={2} sx={{ my: 2 }}>
           <Grid2 size={{ xs: 12, md: 6 }}>
-            <Controller
+            {/* <Controller
               name="conditionType"
               control={control}
               rules={{ required: "Condition Type is required!" }}
@@ -197,15 +203,24 @@ function PolicyForm() {
                   </Select>
                 </FormControl>
               )}
+            /> */}
+            <TextField
+              {...register("min_amount", {
+                required: "Min Amount is required!",
+              })}
+              type="number"
+              label="Min Amount"
+              variant="outlined"
+              fullWidth
             />
-            {errors.conditionType && (
+            {errors.min_amount && (
               <Typography variant="caption" color="error">
-                {errors.conditionType.message}
+                {errors.min_amount.message}
               </Typography>
             )}
           </Grid2>
           <Grid2 size={{ xs: 12, md: 6 }}>
-            {watchedField && (
+            {/* {watchedField && (
               <Controller
                 name="conditionValue"
                 control={control}
@@ -276,10 +291,25 @@ function PolicyForm() {
                   }
                 }}
               />
-            )}
-            {errors.conditionValue && (
+            )} */}
+            <TextField
+              {...register("max_amount", {
+                required: "Max Amount is required!",
+                validate: (value) => {
+                  if (parseInt(watch("min_amount")) >= parseInt(value)) {
+                    return "Max amount must be greater than min amount";
+                  }
+                  return true;
+                },
+              })}
+              type="number"
+              label="Max Amount"
+              variant="outlined"
+              fullWidth
+            />
+            {errors.max_amount && (
               <Typography variant="caption" color="error">
-                {errors.conditionValue.message}
+                {errors.max_amount.message}
               </Typography>
             )}
           </Grid2>
@@ -309,18 +339,27 @@ function PolicyForm() {
             )}
           </Grid2>
           <Grid2 size={{ xs: 12, md: 6 }}>
-            <TextField
-              label="Priority"
-              slotProps={{ inputLabel: { shrink: true } }}
-              type="number"
-              variant="outlined"
-              {...register("priority", { required: "Priority is required!" })}
-              fullWidth
-              helperText="Higher value is higher priority"
+            <Controller
+              name="project"
+              control={control}
+              rules={{ required: "Project is required!" }}
+              render={({ field }) => (
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel id="project">Project</InputLabel>
+                  <Select labelId="project" {...field} label="project">
+                    <MenuItem value={""}>choose project</MenuItem>
+                    {projects.data.map((project) => (
+                      <MenuItem key={project.CODE} value={project.CODE}>
+                        {project.DESCRIPTION}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
             />
-            {errors.priority && (
+            {errors.project && (
               <Typography variant="caption" color="error">
-                {errors.priority.message}
+                {errors.project.message}
               </Typography>
             )}
           </Grid2>
@@ -360,9 +399,9 @@ function PolicyForm() {
                 </FormControl>
               )}
             />
-            {errors.roles && (
+            {errors.approvers && (
               <Typography variant="caption" color="error">
-                {errors.roles.message}
+                {errors.approvers.message}
               </Typography>
             )}
           </Grid2>

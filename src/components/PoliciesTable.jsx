@@ -14,14 +14,14 @@ import {
   Alert,
 } from "@mui/material";
 
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import {
   fetchPolicies,
   deletePolicy,
   fetchExpenseCategoryById,
 } from "../libs/fetcher";
 import { Delete, Edit } from "@mui/icons-material";
-import { useApp } from "../ThemedApp";
+import { queryClient, useApp } from "../ThemedApp";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -29,8 +29,6 @@ export function PoliciesTable() {
   const navigate = useNavigate();
   const { setGlobalMsg } = useApp();
   const { data, isLoading, isError, error } = useQuery("rules", fetchPolicies);
-
-  console.log(data);
 
   const AsyncCategoryName = ({ id }) => {
     const { data: category } = useQuery(
@@ -43,6 +41,16 @@ export function PoliciesTable() {
 
     return category ? <span>{category.name}</span> : <CircularProgress />;
   };
+
+  const deleteRule = useMutation(async (id) => await deletePolicy(id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries("rules");
+      setGlobalMsg("Rule deleted successfully!");
+    },
+    onError: () => {
+      setGlobalMsg("Rule deletion failed!");
+    },
+  });
 
   if (isLoading) {
     return (
@@ -67,11 +75,11 @@ export function PoliciesTable() {
           <TableHead>
             <TableRow>
               <TableCell>Id</TableCell>
-              <TableCell>Condition Type</TableCell>
-              <TableCell>Condition Value</TableCell>
+              <TableCell>Min Amount</TableCell>
+              <TableCell>Max Amount</TableCell>
               <TableCell>Approvers</TableCell>
               <TableCell>For Department</TableCell>
-              <TableCell>Priority</TableCell>
+              <TableCell>Project</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -79,14 +87,8 @@ export function PoliciesTable() {
             {data.map((rule, index) => (
               <TableRow key={index}>
                 <TableCell>{rule.id}</TableCell>
-                <TableCell>{rule.condition_type}</TableCell>
-                <TableCell>
-                  {rule.condition_type === "category" ? (
-                    <AsyncCategoryName id={rule.condition_value} />
-                  ) : (
-                    rule.condition_value
-                  )}
-                </TableCell>
+                <TableCell>{rule.min_amount}</TableCell>
+                <TableCell>{rule.max_amount}</TableCell>
                 <TableCell>
                   {rule.policy_users.map((approver, index) => (
                     <Chip
@@ -97,7 +99,7 @@ export function PoliciesTable() {
                   ))}
                 </TableCell>
                 <TableCell>{rule.departments.name || "-"}</TableCell>
-                <TableCell>{rule.priority}</TableCell>
+                <TableCell>{rule.project}</TableCell>
                 <TableCell>
                   <IconButton
                     color="primary"
@@ -110,9 +112,7 @@ export function PoliciesTable() {
                   <IconButton
                     color="error"
                     onClick={() => {
-                      deletePolicy(rule.id);
-                      setGlobalMsg("Policy deleted successfully");
-                      window.location.reload();
+                      deleteRule.mutate(rule.id);
                     }}
                   >
                     <Delete />

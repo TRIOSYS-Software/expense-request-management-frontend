@@ -70,6 +70,7 @@ const ExpenseForm = () => {
     control,
     handleSubmit,
     setError,
+    clearErrors,
     formState: { errors, isSubmitting },
     reset,
   } = useForm({
@@ -132,16 +133,6 @@ const ExpenseForm = () => {
     formData.append("date_submitted", date.toISOString());
     formData.append("attachment", data.attachment);
     formData.append("user_id", auth.id);
-    // const request = {
-    //   amount: parseFloat(data.amount),
-    //   category_id: data.category,
-    //   description: data.description,
-    //   project: data.project,
-    //   date_submitted: date.toISOString(),
-    //   approvers: data.approver?.join(",") || null,
-    //   user_id: auth.id,
-    // };
-    // console.log(request);
     if (id) {
       update.mutate(formData);
     } else {
@@ -306,11 +297,32 @@ const ExpenseForm = () => {
                     inputLabel: { shrink: true },
                     htmlInput: { accept: "image/*, application/pdf" },
                   }}
-                  onChange={(e) => field.onChange(e.target.files[0])}
+                  onChange={(e) =>
+                    field.onChange(() => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const maxSize = 2 * 1024 * 1024; // 2 MB
+                        if (file.size > maxSize) {
+                          setError("attachment", {
+                            type: "manual",
+                            message: "File size must be less than 2 MB",
+                          });
+                        } else {
+                          clearErrors("attachment");
+                        }
+                      }
+                      return file;
+                    })
+                  }
                   fullWidth
                 />
               )}
             />
+            {errors.attachment && (
+              <Typography variant="body2" color="error">
+                {errors.attachment.message}
+              </Typography>
+            )}
           </Grid>
           {/* <Grid size={12}>
             <Controller
