@@ -143,11 +143,6 @@ function PolicyForm() {
     }
   };
 
-  const watchedField = useWatch({
-    control,
-    name: "min_amount",
-  });
-
   if (
     approvers.isLoading ||
     departments.isLoading ||

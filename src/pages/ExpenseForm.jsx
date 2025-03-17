@@ -308,7 +308,7 @@ const ExpenseForm = () => {
                   >
                     <MenuItem value="">Choose an option</MenuItem>
                     {glAccounts.data.map((option) => (
-                      <MenuItem key={option.DOCKEY} value={option.DOCKEY}>
+                      <MenuItem key={option.DOCKEY} value={option.CODE}>
                         {option.DESCRIPTION}
                       </MenuItem>
                     ))}

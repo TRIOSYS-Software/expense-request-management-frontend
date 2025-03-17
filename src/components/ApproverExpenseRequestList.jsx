@@ -194,6 +194,7 @@ export default function ApproverExpenseRequestList() {
               display: "flex",
               justifyContent: "space-between",
               flexWrap: "wrap",
+              pt: 2,
             }}
           >
             <Box>
@@ -208,7 +209,6 @@ export default function ApproverExpenseRequestList() {
               <Typography variant="h6" component={"div"}>
                 Attachments
               </Typography>
-
               {expense.attachment ? (
                 <Button
                   variant="contained"
@@ -224,6 +224,29 @@ export default function ApproverExpenseRequestList() {
               ) : (
                 <Typography variant="body2">----</Typography>
               )}
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              pt: 2,
+            }}
+          >
+            <Box>
+              <Typography variant="h6" component={"div"}>
+                Payment Method
+              </Typography>
+              <Typography component={"p"} variant="body2">
+                {expense.payment_method}
+              </Typography>
+            </Box>
+            <Box>
+              <Typography variant="h6" component={"div"}>
+                GL Account
+              </Typography>
+              <Typography variant="body2">{expense.gl_account}</Typography>
             </Box>
           </Box>
           <Divider sx={{ my: 2 }} />

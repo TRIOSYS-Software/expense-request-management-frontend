@@ -131,6 +131,13 @@ export default function ExpenseFormToSQLACC() {
         </Typography>
       </Box>
       <Divider />
+      <Box sx={{ display: "flex", justifyContent: "space-between", my: 2 }}>
+        <Typography variant="body2">GL Account :</Typography>
+        <Typography variant="body2">
+          {expenseRequest.data.gl_account}
+        </Typography>
+      </Box>
+      <Divider />
       <Box sx={{ display: "flex", justifyContent: "flex-end", my: 2 }}>
         <Button
           variant="contained"
