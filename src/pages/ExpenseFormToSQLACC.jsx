@@ -42,10 +42,6 @@ export default function ExpenseFormToSQLACC() {
 
   const [expenseRequest, paymentMethods] = results;
 
-  console.log(paymentMethods);
-
-  const [paymentMethod, setPaymentMethod] = useState("");
-
   const sendToSQLACC = useMutation(sendtoSQLACC, {
     onSuccess: () => {
       setGlobalMsg("Expense sent to SQLACC successfully!");
@@ -130,22 +126,9 @@ export default function ExpenseFormToSQLACC() {
       <Divider />
       <Box sx={{ display: "flex", justifyContent: "space-between", my: 2 }}>
         <Typography variant="body2">Payment Methods :</Typography>
-        <FormControl sx={{ minWidth: 200 }} size="small">
-          {/* <InputLabel id="payment-method">Payment Method</InputLabel> */}
-          <Select
-            labelId="payment-method"
-            id="payment-method"
-            // label="Payment Method"
-            value={paymentMethod}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-          >
-            {paymentMethods.data.map((pm) => (
-              <MenuItem key={pm.CODE} value={pm.CODE}>
-                {pm.JOURNAL} ({pm.DESCRIPTION})
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Typography variant="body2">
+          {expenseRequest.data.payment_method}
+        </Typography>
       </Box>
       <Divider />
       <Box sx={{ display: "flex", justifyContent: "flex-end", my: 2 }}>
@@ -164,7 +147,7 @@ export default function ExpenseFormToSQLACC() {
           onClick={() => {
             const expense = {
               expense_id: expenseRequest.data.id,
-              payment_method: paymentMethod,
+              payment_method: expenseRequest.data.payment_method,
             };
             sendToSQLACC.mutate(expense);
           }}

@@ -11,9 +11,6 @@ import {
   FormControl,
   InputLabel,
   Select,
-  OutlinedInput,
-  Chip,
-  FormHelperText,
   IconButton,
 } from "@mui/material";
 import { Send, ArrowBackIos, BackHand, ArrowBack } from "@mui/icons-material";
@@ -23,6 +20,8 @@ import {
   fetchExpenseCategories,
   fetchExpenseRequestsByID,
   fetchUsers,
+  getLowLevelGLAccounts,
+  getPaymentMethods,
   getProjects,
   updateExpense,
 } from "../libs/fetcher";
@@ -49,13 +48,22 @@ const ExpenseForm = () => {
       queryKey: "users",
       queryFn: fetchUsers,
     },
+    {
+      queryKey: "payment-method",
+      queryFn: () => getPaymentMethods(),
+    },
+    {
+      queryKey: "glaccounts",
+      queryFn: () => getLowLevelGLAccounts(),
+    },
   ];
 
   const results = useQueries(queries);
 
-  const [expenseCategories, projects, users] = results;
+  const [expenseCategories, projects, users, paymentMethods, glAccounts] =
+    results;
 
-  const approvers = users.data?.filter((user) => user.roles.id === 2);
+  // const approvers = users.data?.filter((user) => user.roles.id === 2);
 
   const { data } = useQuery(
     ["expense", id],
@@ -82,6 +90,8 @@ const ExpenseForm = () => {
       description: "",
       attachment: null,
       submittedDate: "",
+      paymentMethod: "",
+      gl_account: "",
     },
   });
 
@@ -119,6 +129,8 @@ const ExpenseForm = () => {
         project: data.project,
         submittedDate: date,
         approver: data.approvers?.split(",") || [],
+        paymentMethod: data.payment_method,
+        gl_account: data.gl_account,
       });
     }
   }, [data]);
@@ -133,6 +145,9 @@ const ExpenseForm = () => {
     formData.append("date_submitted", date.toISOString());
     formData.append("attachment", data.attachment);
     formData.append("user_id", auth.id);
+    formData.append("payment_method", data.paymentMethod);
+    formData.append("gl_account", data.gl_account);
+    console.log(data.attachment);
     if (id) {
       update.mutate(formData);
     } else {
@@ -140,7 +155,12 @@ const ExpenseForm = () => {
     }
   };
 
-  if (expenseCategories.isLoading || projects.isLoading || users.isLoading) {
+  if (
+    expenseCategories.isLoading ||
+    projects.isLoading ||
+    users.isLoading ||
+    paymentMethods.isLoading
+  ) {
     return (
       <Box
         sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
@@ -150,7 +170,12 @@ const ExpenseForm = () => {
     );
   }
 
-  if (expenseCategories.isError || projects.isError || users.isError) {
+  if (
+    expenseCategories.isError ||
+    projects.isError ||
+    users.isError ||
+    paymentMethods.isError
+  ) {
     return (
       <Alert severity="error">
         "Something went wrong!",{" "}
@@ -269,6 +294,35 @@ const ExpenseForm = () => {
             )}
           </Grid>
           <Grid size={12}>
+            <FormControl fullWidth>
+              <InputLabel id="gl-account-label">GL Account</InputLabel>
+              <Controller
+                name="gl_account"
+                control={control}
+                rules={{ required: "gl_account is required" }}
+                render={({ field }) => (
+                  <Select
+                    labelId="gl-account-label"
+                    label="GL Account"
+                    {...field}
+                  >
+                    <MenuItem value="">Choose an option</MenuItem>
+                    {glAccounts.data.map((option) => (
+                      <MenuItem key={option.DOCKEY} value={option.DOCKEY}>
+                        {option.DESCRIPTION}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+            </FormControl>
+            {errors.gl_account && (
+              <Typography variant="body2" color="error">
+                {errors.gl_account.message}
+              </Typography>
+            )}
+          </Grid>
+          <Grid size={12}>
             <TextField
               label="Description"
               multiline
@@ -285,7 +339,7 @@ const ExpenseForm = () => {
               </Typography>
             )}
           </Grid>
-          <Grid size={12}>
+          <Grid size={6}>
             <Controller
               name="attachment"
               control={control}
@@ -297,23 +351,21 @@ const ExpenseForm = () => {
                     inputLabel: { shrink: true },
                     htmlInput: { accept: "image/*, application/pdf" },
                   }}
-                  onChange={(e) =>
-                    field.onChange(() => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        const maxSize = 2 * 1024 * 1024; // 2 MB
-                        if (file.size > maxSize) {
-                          setError("attachment", {
-                            type: "manual",
-                            message: "File size must be less than 2 MB",
-                          });
-                        } else {
-                          clearErrors("attachment");
-                        }
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const maxSize = 2 * 1024 * 1024; // 2 MB
+                      if (file.size > maxSize) {
+                        setError("attachment", {
+                          type: "manual",
+                          message: "File size must be less than 2 MB",
+                        });
+                      } else {
+                        clearErrors("attachment");
                       }
-                      return file;
-                    })
-                  }
+                    }
+                    field.onChange(file);
+                  }}
                   fullWidth
                 />
               )}
@@ -323,6 +375,30 @@ const ExpenseForm = () => {
                 {errors.attachment.message}
               </Typography>
             )}
+          </Grid>
+          <Grid size={6}>
+            <FormControl fullWidth>
+              <InputLabel id="payment-label">Payment Method</InputLabel>
+              <Controller
+                name="paymentMethod"
+                control={control}
+                rules={{ required: "Payment Method is required" }}
+                render={({ field }) => (
+                  <Select
+                    labelId="project-label"
+                    label="Payment Method"
+                    {...field}
+                  >
+                    <MenuItem value="">Choose an option</MenuItem>
+                    {paymentMethods.data.map((pm) => (
+                      <MenuItem key={pm.CODE} value={pm.CODE}>
+                        {pm.JOURNAL} ({pm.DESCRIPTION})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+            </FormControl>
           </Grid>
           {/* <Grid size={12}>
             <Controller

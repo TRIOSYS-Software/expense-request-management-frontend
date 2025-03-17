@@ -137,6 +137,8 @@ const ExpenseCard = ({
   user,
   amount,
   project,
+  payment_method,
+  gl_account,
   description,
   status,
   category,
@@ -279,23 +281,37 @@ const ExpenseCard = ({
               </Box>
             )}
           </Box>
-          <Box sx={{ p: 2 }}>
-            <Typography variant="h6">Attachment</Typography>
-            {attachment ? (
-              <Button
-                variant="contained"
-                size="small"
-                color="primary"
-                onClick={() => {
-                  handleView(attachment);
-                }}
-                download
-              >
-                View
-              </Button>
-            ) : (
-              <Typography variant="body2">----</Typography>
-            )}
+          <Box sx={{ p: 2, display: "flex", justifyContent: "space-between" }}>
+            <Box>
+              <Typography variant="h6">Attachment</Typography>
+              {attachment ? (
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="primary"
+                  onClick={() => {
+                    handleView(attachment);
+                  }}
+                  download
+                >
+                  View
+                </Button>
+              ) : (
+                <Typography variant="body2">----</Typography>
+              )}
+            </Box>
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <Box>
+                <Typography variant="h6">Payment Method</Typography>
+                <Typography variant="body2">
+                  {payment_method || "----"}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="h6">GL Account</Typography>
+                <Typography variant="body2">{gl_account || "----"}</Typography>
+              </Box>
+            </Box>
           </Box>
           <Box sx={{ p: 2 }}>
             <Typography variant="h6">Comments</Typography>

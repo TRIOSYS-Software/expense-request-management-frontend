@@ -23,7 +23,7 @@ export default function Expenses() {
       >
         <Typography variant="h5">Expenses Requests List</Typography>
         {auth.role !== 3 ? (
-          <Box>Search</Box>
+          <Box></Box>
         ) : (
           <Box>
             <Button

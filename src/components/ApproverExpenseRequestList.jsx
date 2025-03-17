@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import PropTypes from "prop-types";
 import {
+  fetchExpenseAttachment,
   fetchExpenseRequestsByApproverID,
   updateExpenseApprovals,
 } from "../libs/fetcher";
@@ -22,6 +23,7 @@ import { queryClient, useApp } from "../ThemedApp";
 import { useMutation, useQuery } from "react-query";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { random } from "node-forge";
 
 const style = {
   position: "absolute",
@@ -125,73 +127,109 @@ export default function ApproverExpenseRequestList() {
     handleClose();
   };
 
+  const handleView = async (file) => {
+    try {
+      const blob = await fetchExpenseAttachment(file);
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Open the file in a new tab
+      window.open(url, "_blank");
+
+      // Clean up (optional, but recommended)
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error viewing file:", error);
+      alert("Failed to open the file. Please try again later.");
+    }
+  };
+
   const renderExpenseList = (expenses) =>
     expenses?.map((expense) => {
       const date = new Date(expense.date_submitted);
       return (
-        <Grid2 key={expense.id} size={12}>
-          <Card sx={{ p: 2 }}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-              }}
-            >
-              <Box>
-                <Typography variant="h5">
-                  {expense.amount.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 4,
-                  })}{" "}
-                  <Chip
-                    label={expense.status}
-                    color={
-                      expense.status === "pending"
-                        ? "warning"
-                        : expense.status === "approved"
-                        ? "success"
-                        : "error"
-                    }
-                  />
-                </Typography>
-                <Typography variant="body2">{expense.user.name}</Typography>
-                <Typography>{date.toLocaleDateString()}</Typography>
-              </Box>
-              <Box
-                sx={{ display: "flex", justifyContent: "flex-start", gap: 1 }}
-              >
+        <Card key={expense.id} sx={{ p: 2, mb: 2 }}>
+          <Box>
+            <Typography variant="h6">ID - {expense.id}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+            }}
+          >
+            <Box>
+              <Typography variant="h5">
+                {expense.amount.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 4,
+                })}{" "}
                 <Chip
-                  label={expense.category.name}
-                  sx={{ my: 1 }}
-                  color="secondary"
+                  label={expense.status}
+                  color={
+                    expense.status === "pending"
+                      ? "warning"
+                      : expense.status === "approved"
+                      ? "success"
+                      : "error"
+                  }
                 />
-                <Chip
-                  label={expense.project}
-                  sx={{ my: 1 }}
-                  color="secondary"
-                />
-              </Box>
+              </Typography>
+              <Typography variant="body2">{expense.user.name}</Typography>
+              <Typography>{date.toLocaleDateString()}</Typography>
             </Box>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-              }}
-            >
-              <Box>
-                <Typography variant="h6" component={"div"}>
-                  Description
-                </Typography>
-                <Typography component={"p"} variant="body2">
-                  {expense.description}
-                </Typography>
-              </Box>
+            <Box sx={{ display: "flex", justifyContent: "flex-start", gap: 1 }}>
+              <Chip
+                label={expense.category.name}
+                sx={{ my: 1 }}
+                color="secondary"
+              />
+              <Chip label={expense.project} sx={{ my: 1 }} color="secondary" />
             </Box>
-            {/* <Divider sx={{ my: 2 }} />
-            <Typography variant="h6">Approvals</Typography> */}
-            {/* {expense.approvals?.map((approval) => (
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+            }}
+          >
+            <Box>
+              <Typography variant="h6" component={"div"}>
+                Description
+              </Typography>
+              <Typography component={"p"} variant="body2">
+                {expense.description}
+              </Typography>
+            </Box>
+            <Box>
+              <Typography variant="h6" component={"div"}>
+                Attachments
+              </Typography>
+
+              {expense.attachment ? (
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="primary"
+                  onClick={() => {
+                    handleView(expense.attachment);
+                  }}
+                  download
+                >
+                  View
+                </Button>
+              ) : (
+                <Typography variant="body2">----</Typography>
+              )}
+            </Box>
+          </Box>
+          <Divider sx={{ my: 2 }} />
+          <Typography variant="h6">Approvals</Typography>
+          {expense.approvals?.map((approval) => {
+            return (
               <Box
                 sx={{
                   display: "flex",
@@ -199,7 +237,10 @@ export default function ApproverExpenseRequestList() {
                 }}
                 key={approval.id}
               >
-                <Typography variant="body2">{approval.users.name}</Typography>
+                <Typography variant="body2">
+                  {approval.level}. {approval.users.name} :{" "}
+                  {approval.comments || "No comments yet"}
+                </Typography>
                 <Typography
                   color={
                     approval.status === "approved"
@@ -212,69 +253,66 @@ export default function ApproverExpenseRequestList() {
                   {approval.status}
                 </Typography>
               </Box>
-            ))} */}
-            {expense.approvals.map((approval) => {
-              if (
-                approval.status === "pending" &&
-                approval.users.id === auth.id &&
-                approval.level === expense.current_approver_level
-              ) {
-                return (
-                  <Box
-                    sx={{
-                      mt: 2,
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: 1,
+            );
+          })}
+          {expense.approvals.map((approval) => {
+            if (
+              approval.status === "pending" &&
+              approval.users.id === auth.id &&
+              approval.level === expense.current_approver_level
+            ) {
+              return (
+                <Box
+                  sx={{
+                    mt: 2,
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: 1,
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    color="success"
+                    onClick={() => {
+                      setAction("approve");
+                      handleOpen(approval);
                     }}
-                    key={approval.id}
                   >
-                    <Button
-                      variant="outlined"
-                      color="success"
-                      onClick={() => {
-                        setAction("approve");
-                        handleOpen(approval);
-                      }}
-                    >
-                      Approve
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => {
-                        setAction("reject");
-                        handleOpen(approval);
-                      }}
-                    >
-                      Reject
-                    </Button>
-                  </Box>
-                );
-              }
-              if (
-                expense.status === "approved" &&
-                approval.users.id === auth.id &&
-                approval.is_final === true
-              ) {
-                return (
-                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button
-                      onClick={() => {
-                        navigate(`/expenses/${expense.id}/send-to-sqlacc`);
-                      }}
-                      variant="outlined"
-                      color="primary"
-                      disabled={expense.is_send_to_sql_acc === true}
-                    >
-                      Send To SQL ACC
-                    </Button>
-                  </Box>
-                );
-              }
-            })}
-          </Card>
-        </Grid2>
+                    Approve
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => {
+                      setAction("reject");
+                      handleOpen(approval);
+                    }}
+                  >
+                    Reject
+                  </Button>
+                </Box>
+              );
+            }
+          })}
+          {expense.status === "approved" &&
+            expense.approvals.some(
+              (approval) =>
+                approval.users.id === auth.id && approval.is_final === true
+            ) && (
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                  onClick={() => {
+                    navigate(`/expenses/${expense.id}/send-to-sqlacc`);
+                  }}
+                  variant="outlined"
+                  color="primary"
+                  disabled={expense.is_send_to_sql_acc === true}
+                >
+                  Send To SQL ACC
+                </Button>
+              </Box>
+            )}
+        </Card>
       );
     });
 
@@ -307,24 +345,16 @@ export default function ApproverExpenseRequestList() {
         <Tab label="Rejected" {...a11yProps(3)} />
       </Tabs>
       <CustomTabPanel value={value} index={0}>
-        <Grid2 container spacing={2}>
-          {renderExpenseList(data)}
-        </Grid2>
+        {renderExpenseList(data)}
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        <Grid2 container spacing={2}>
-          {renderExpenseList(pendingExpenseRequest)}
-        </Grid2>
+        {renderExpenseList(pendingExpenseRequest)}
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
-        <Grid2 container spacing={2}>
-          {renderExpenseList(approvedExpenseRequest)}
-        </Grid2>
+        {renderExpenseList(approvedExpenseRequest)}
       </CustomTabPanel>
       <CustomTabPanel value={value} index={3}>
-        <Grid2 container spacing={2}>
-          {renderExpenseList(rejectedExpenseRequest)}
-        </Grid2>
+        {renderExpenseList(rejectedExpenseRequest)}
       </CustomTabPanel>
       <Modal open={open} onClose={handleClose}>
         <Box sx={style}>

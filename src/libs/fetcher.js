@@ -335,10 +335,18 @@ export async function fetchExpenseApprovalsByApproverID(id){
 }
 
 export async function updateExpenseApprovals(id, data){
-    console.log({id, data});
     const res = await axios.put(`${api}/expense-approvals/${id}`, data, {
         headers: {
             'Authorization': `${getToken()}`
         }
     });
+}
+
+export async function getLowLevelGLAccounts(){
+    const res = await axios.get(`${sqlAccApi}/gl-accounts/low-level`, {
+        headers: {
+            'ShweTaik': `${secret}`
+        }
+    });
+    return res.data;
 }

@@ -34,7 +34,14 @@ const Login = () => {
         navigate("/");
       },
       onError: (error) => {
-        setError("root", { message: error.message });
+        if (error.response.status == 401)
+          setError("root", { message: "Incorrect Username or Password" });
+
+        if (error.response && error.response.data) {
+          setError("root", { message: error.response.data });
+        } else {
+          setError("root", { message: error.message });
+        }
       },
     }
   );
