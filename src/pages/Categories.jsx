@@ -36,6 +36,7 @@ export default function Categories() {
 
   const onClick = () => {
     create.mutate({ name: category });
+    setCategory("");
     setOpen(false);
   };
 

@@ -39,6 +39,7 @@ export default function Departments() {
 
   const handleClick = () => {
     create.mutate({ name: department });
+    setDepartment("");
     setOpen(false);
   };
 

@@ -94,20 +94,11 @@ function UsersTable() {
           <Table>
             <TableHead>
               <TableRow>
-                {Object.keys(filterdUsers[0])
-                  .filter(
-                    (key) =>
-                      ![
-                        "password",
-                        "created_at",
-                        "updated_at",
-                        "roles",
-                        "departments",
-                      ].includes(key)
-                  )
-                  .map((key) => (
-                    <TableCell key={key}>{key}</TableCell>
-                  ))}
+                <TableCell>ID</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Role</TableCell>
+                <TableCell>Department</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>

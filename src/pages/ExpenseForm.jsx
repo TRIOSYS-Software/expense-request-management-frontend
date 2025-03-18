@@ -159,7 +159,8 @@ const ExpenseForm = () => {
     expenseCategories.isLoading ||
     projects.isLoading ||
     users.isLoading ||
-    paymentMethods.isLoading
+    paymentMethods.isLoading ||
+    glAccounts.isLoading
   ) {
     return (
       <Box
@@ -174,14 +175,17 @@ const ExpenseForm = () => {
     expenseCategories.isError ||
     projects.isError ||
     users.isError ||
-    paymentMethods.isError
+    paymentMethods.isError ||
+    glAccounts.isError
   ) {
     return (
       <Alert severity="error">
         "Something went wrong!",{" "}
         {expenseCategories.error?.message ||
           projects.error?.message ||
-          users.error?.message}
+          users.error?.message ||
+          paymentMethods.error?.message ||
+          glAccounts.error?.message}
       </Alert>
     );
   }
