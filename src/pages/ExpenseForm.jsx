@@ -101,9 +101,11 @@ const ExpenseForm = () => {
       reset();
     },
     onError: (error) => {
-      setError("root", {
-        message: error.message,
-      });
+      if (error.response && error.response.data) {
+        setError("root", { message: error.response.data });
+      } else {
+        setError("root", { message: error.message });
+      }
     },
   });
 
@@ -113,9 +115,11 @@ const ExpenseForm = () => {
       navigate(-1);
     },
     onError: (error) => {
-      setError("root", {
-        message: error.message,
-      });
+      if (error.response && error.response.data) {
+        setError("root", { message: error.response.data });
+      } else {
+        setError("root", { message: error.message });
+      }
     },
   });
 
@@ -457,6 +461,11 @@ const ExpenseForm = () => {
             )}
           </Grid> */}
         </Grid>
+        {errors.root && (
+          <Typography variant="body2" color="error">
+            {errors.root.message}
+          </Typography>
+        )}
         <Box
           display="flex"
           justifyContent={{ xs: "space-between", md: "flex-end" }}

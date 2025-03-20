@@ -65,36 +65,36 @@ function a11yProps(index) {
   };
 }
 
-export default function ExpenseRequestList() {
+export default function ExpenseRequestList({ data }) {
   const [value, setValue] = useState(0);
   const { auth } = useApp();
-  const { data, isLoading, isError, error } = useQuery("expenses", () => {
-    if (auth.role === 1) {
-      return fetchExpenseRequests();
-    } else {
-      return fetchExpenseRequestsByUserID(auth.id);
-    }
-  });
+  // const { data, isLoading, isError, error } = useQuery("expenses", () => {
+  //   if (auth.role === 1) {
+  //     return fetchExpenseRequests();
+  //   } else {
+  //     return fetchExpenseRequestsByUserID(auth.id);
+  //   }
+  // });
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-  if (isLoading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
+  //       <CircularProgress />
+  //     </Box>
+  //   );
+  // }
 
-  if (isError) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
-        <Alert severity="error">{error.message}</Alert>
-      </Box>
-    );
-  }
+  // if (isError) {
+  //   return (
+  //     <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
+  //       <Alert severity="error">{error.message}</Alert>
+  //     </Box>
+  //   );
+  // }
 
   const filterByStatus = (status) => {
     return data?.filter((expense) => expense.status === status);

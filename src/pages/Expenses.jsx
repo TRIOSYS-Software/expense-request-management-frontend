@@ -1,14 +1,121 @@
-import { Box, Button, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
 import ExpenseTable from "../components/ExpenseTable";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ExpenseRequestList from "../components/ExpenseRequestList";
 import { useApp } from "../ThemedApp";
 import ApproverExpenseRequestList from "../components/ApproverExpenseRequestList";
+import {
+  fetchExpenseRequests,
+  fetchExpenseRequestsByApproverID,
+  fetchExpenseRequestsByUserID,
+} from "../libs/fetcher";
+import { useQuery } from "react-query";
+import * as XLSX from "xlsx";
 
 export default function Expenses() {
   const { auth } = useApp();
   const navigate = useNavigate();
+
+  const flattenData = (data) => {
+    return data.map((item) => {
+      // Flatten the main object
+      const flattened = {
+        id: item.id,
+        amount: item.amount,
+        description: item.description,
+        category_id: item.category_id,
+        project: item.project,
+        payment_method: item.payment_method,
+        user_id: item.user_id,
+        gl_account: item.gl_account,
+        date_submitted: item.date_submitted,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        status: item.status,
+        current_approver_level: item.current_approver_level,
+        is_send_to_sql_acc: item.is_send_to_sql_acc,
+        category_name: item.category.name, // Flatten category
+        user_name: item.user.name, // Flatten user
+        user_email: item.user.email, // Flatten user
+      };
+
+      // Flatten approvals
+      item.approvals.forEach((approval, index) => {
+        flattened[`approval_${index + 1}_id`] = approval.id;
+        flattened[`approval_${index + 1}_approver_name`] = approval.users.name;
+        flattened[`approval_${index + 1}_approver_email`] =
+          approval.users.email;
+        flattened[`approval_${index + 1}_status`] = approval.status;
+        flattened[`approval_${index + 1}_comments`] = approval.comments;
+        flattened[`approval_${index + 1}_approval_date`] =
+          approval.approval_date;
+        flattened[`approval_${index + 1}_is_final`] = approval.is_final;
+      });
+
+      return flattened;
+    });
+  };
+
+  const exportToExcel = (data, fileName) => {
+    const flattenData2 = flattenData(data);
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Convert data to worksheet
+    const ws = XLSX.utils.json_to_sheet(flattenData2);
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+    // Write workbook and trigger download
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+  };
+
+  const handleExport = () => {
+    exportToExcel(data, "Expense-Requests");
+  };
+
+  const { data, isLoading, isError, error } = useQuery("expenses", () => {
+    if (auth.role === 1) {
+      return fetchExpenseRequests();
+    } else if (auth.role === 2) {
+      return fetchExpenseRequestsByApproverID(auth.id);
+    } else {
+      return fetchExpenseRequestsByUserID(auth.id);
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          height: "50vh",
+          mx: "auto",
+          width: "fit-content",
+        }}
+      >
+        <Alert severity="error">{error.message}</Alert>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ px: { xs: 2, md: 4 } }}>
       <Box
@@ -22,9 +129,17 @@ export default function Expenses() {
         }}
       >
         <Typography variant="h5">Expenses Requests List</Typography>
-        {auth.role !== 3 ? (
-          <Box></Box>
-        ) : (
+        {auth.role === 1 ? (
+          <Box>
+            <Button
+              variant="contained"
+              sx={{ display: { xs: "none", md: "flex" } }}
+              onClick={handleExport}
+            >
+              Excel Export
+            </Button>
+          </Box>
+        ) : auth.role === 2 ? null : (
           <Box>
             <Button
               variant="contained"
@@ -53,9 +168,9 @@ export default function Expenses() {
         )}
       </Box>
       {auth.role === 2 ? (
-        <ApproverExpenseRequestList />
+        <ApproverExpenseRequestList data={data} />
       ) : (
-        <ExpenseRequestList />
+        <ExpenseRequestList data={data} />
       )}
     </Box>
   );

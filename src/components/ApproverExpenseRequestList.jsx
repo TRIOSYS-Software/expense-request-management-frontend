@@ -64,7 +64,7 @@ function a11yProps(index) {
   };
 }
 
-export default function ApproverExpenseRequestList() {
+export default function ApproverExpenseRequestList({ data }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(0);
   const [action, setAction] = useState("");
@@ -72,11 +72,6 @@ export default function ApproverExpenseRequestList() {
   const [selected, setSelected] = useState(null);
   const { auth, setGlobalMsg } = useApp();
   const navigate = useNavigate();
-
-  const { data, isLoading, isError, setError } = useQuery(
-    "expense-requests",
-    () => fetchExpenseRequestsByApproverID(auth.id)
-  );
 
   const categorizeExpenseRequests = (status) =>
     data?.filter((r) => r.status === status);
@@ -94,7 +89,7 @@ export default function ApproverExpenseRequestList() {
       onSuccess: () => {
         handleClose();
         setGlobalMsg("Expense updated successfully!");
-        queryClient.invalidateQueries("expense-requests");
+        queryClient.invalidateQueries("expenses");
       },
       onError: (error) => {
         setError("root", { message: error.message });
@@ -338,22 +333,6 @@ export default function ApproverExpenseRequestList() {
         </Card>
       );
     });
-
-  if (isLoading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (isError) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
-        <Alert severity="error">Error fetching data</Alert>
-      </Box>
-    );
-  }
 
   return (
     <Box>
