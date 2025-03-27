@@ -26,12 +26,13 @@ import {
   getProjects,
   updatePolicy,
 } from "../libs/fetcher";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { ArrowBackIos, Send } from "@mui/icons-material";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
+import { Add, ArrowBackIos, Send } from "@mui/icons-material";
 import { useApp } from "../ThemedApp";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { parse } from "date-fns";
+import MultiSelectBox from "../components/MultiSelectBox";
 
 function PolicyForm() {
   const { id } = useParams();
@@ -73,6 +74,11 @@ function PolicyForm() {
       approvers: [],
       department: "",
       project: "",
+      approvers: [
+        {
+          values: [],
+        },
+      ],
     },
   });
 
@@ -80,9 +86,39 @@ function PolicyForm() {
     enabled: !!id,
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "approvers",
+  });
+
+  const watchApprovers = useWatch({ control, name: "approvers" });
+
+  const getAvailableOptions = (currentIndex) => {
+    const selectedValues = watchApprovers?.reduce((acc, box, index) => {
+      if (index !== currentIndex && box.values) {
+        return [...acc, ...box.values];
+      }
+      return acc;
+    }, []);
+    return approvers.data.filter(
+      (option) => !selectedValues.includes(option.id)
+    );
+  };
+
+  const handleRemoveSelectBox = (index) => {
+    if (fields.length > 1) {
+      remove(index);
+    }
+  };
+
+  const handleAddSelectBox = () => {
+    append({
+      values: [],
+    });
+  };
+
   useEffect(() => {
     if (data) {
-      console.log(data);
       reset({
         approvers: data.policy_users?.map((r) => r.Approver.id),
         department: data.department,
@@ -128,12 +164,9 @@ function PolicyForm() {
       max_amount: parseInt(data.max_amount),
       project: data.project,
       department_id: data.department || null,
-      approvers: data.approvers.map((r, index) => {
-        return {
-          approver_id: r,
-          level: index + 1,
-        };
-      }),
+      approvers: data.approvers.flatMap((subArray, index) =>
+        subArray.values.map((v) => ({ approver_id: v, level: index + 1 }))
+      ),
     };
     // console.log(request);
     if (id) {
@@ -358,7 +391,26 @@ function PolicyForm() {
               </Typography>
             )}
           </Grid2>
-          <Grid2 size={12}>
+          {fields.map((field, index) => (
+            <MultiSelectBox
+              id={index}
+              key={field.id}
+              control={control}
+              options={getAvailableOptions(index)}
+              name={`approvers.${index}.values`}
+              onRemove={() => handleRemoveSelectBox(index)}
+              canRemove={fields.length > 1}
+            />
+          ))}
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Add size={18} />}
+            onClick={handleAddSelectBox}
+          >
+            Approver Level
+          </Button>
+          {/* <Grid2 size={12}>
             <Controller
               name="approvers"
               control={control}
@@ -399,7 +451,7 @@ function PolicyForm() {
                 {errors.approvers.message}
               </Typography>
             )}
-          </Grid2>
+          </Grid2> */}
         </Grid2>
         <Box
           display="flex"
