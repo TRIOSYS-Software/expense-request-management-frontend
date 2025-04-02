@@ -2,9 +2,6 @@ import { getToken, encrypt } from "../utility/generate_token";
 import axios from "axios";
 
 const api = import.meta.env.VITE_API;
-const sqlAccApi = import.meta.env.VITE_SQL_ACC_API;
-const key = import.meta.env.VITE_KEY;
-const secret = import.meta.env.VITE_SECRET;
 
 export async function fetchExpenseCategories() {
     const res = await axios.get(`${api}/expense-categories`, {
@@ -162,20 +159,27 @@ export async function fetchVerify(){
 }
 
 export async function getProjects(){
-    const encryptedKey = await encrypt(secret, key);
-    const res = await axios.get(`${sqlAccApi}/projects`, {
+    const res = await axios.get(`${api}/projects`, {
         headers: {
-            'ShweTaik': `${encryptedKey}`
+            'Authorization': `${getToken()}`
         }
     });
     return res.data;
 }
 
 export async function getPaymentMethods(){
-    const encryptedKey = await encrypt(secret, key);
-    const res = await axios.get(`${sqlAccApi}/payment-methods`, {
+    const res = await axios.get(`${api}/payment-methods`, {
         headers: {
-            'ShweTaik': `${encryptedKey}`
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function getGLAccounts(){
+    const res = await axios.get(`${api}/gl-acc`, {
+        headers: {
+            'Authorization': `${getToken()}`
         }
     });
     return res.data;
@@ -340,13 +344,4 @@ export async function updateExpenseApprovals(id, data){
             'Authorization': `${getToken()}`
         }
     });
-}
-
-export async function getLowLevelGLAccounts(){
-    const res = await axios.get(`${sqlAccApi}/gl-accounts/low-level`, {
-        headers: {
-            'ShweTaik': `${secret}`
-        }
-    });
-    return res.data;
 }

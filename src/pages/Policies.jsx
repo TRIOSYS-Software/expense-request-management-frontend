@@ -19,7 +19,7 @@ export function Policies() {
         <Button
           variant="contained"
           startIcon={<Add />}
-          sx={{ display: { xs: "none", md: "flex" } }}
+          sx={{ display: "flex" }}
           onClick={() => {
             navigate("/policies/form");
           }}

@@ -71,7 +71,6 @@ function PolicyForm() {
     watch,
   } = useForm({
     defaultValues: {
-      approvers: [],
       department: "",
       project: "",
       approvers: [
@@ -119,16 +118,24 @@ function PolicyForm() {
 
   useEffect(() => {
     if (data) {
+      const approversByLevel = data.policy_users.reduce((acc, user) => {
+        const level = user.level - 1; // Convert to zero-based index
+        if (!acc[level]) acc[level] = { values: [] };
+        acc[level].values.push(user.Approver.id);
+        return acc;
+      }, []);
+
       reset({
-        approvers: data.policy_users?.map((r) => r.Approver.id),
-        department: data.department,
+        approvers:
+          approversByLevel.length > 0 ? approversByLevel : [{ values: [] }],
+        department: data.department || "",
         min_amount: data.min_amount,
         max_amount: data.max_amount,
         priority: data.priority,
         project: data.project,
       });
     }
-  }, [data]);
+  }, [data, reset]);
 
   const create = useMutation(async (data) => createPolicy(data), {
     onSuccess: (data) => {
@@ -212,26 +219,6 @@ function PolicyForm() {
         <Typography variant="h5">Policy Form</Typography>
         <Grid2 container spacing={2} sx={{ my: 2 }}>
           <Grid2 size={{ xs: 12, md: 6 }}>
-            {/* <Controller
-              name="conditionType"
-              control={control}
-              rules={{ required: "Condition Type is required!" }}
-              render={({ field }) => (
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel id="cd-type">Condition Type</InputLabel>
-                  <Select
-                    labelId="cd-type"
-                    id="cd-type"
-                    label="Condition Type"
-                    {...field}
-                  >
-                    <MenuItem value={"category"}>Category</MenuItem>
-                    <MenuItem value={"amount"}>Amount</MenuItem>
-                    <MenuItem value={"project"}>Project</MenuItem>
-                  </Select>
-                </FormControl>
-              )}
-            /> */}
             <TextField
               {...register("min_amount", {
                 required: "Min Amount is required!",
@@ -248,78 +235,6 @@ function PolicyForm() {
             )}
           </Grid2>
           <Grid2 size={{ xs: 12, md: 6 }}>
-            {/* {watchedField && (
-              <Controller
-                name="conditionValue"
-                control={control}
-                rules={{
-                  required: `condition value is required!`,
-                  validate: (value) => {
-                    if (watchedField === "amount") {
-                      const pattern = /^[<=|>=|<|>]{1,2}\s{1}\d+/;
-                      return pattern.test(value) || "Invalid amount format";
-                    }
-                    return true;
-                  },
-                }}
-                render={({ field }) => {
-                  switch (watchedField) {
-                    case "category":
-                      return (
-                        <FormControl fullWidth variant="outlined">
-                          <InputLabel id="category">Category</InputLabel>
-                          <Select
-                            labelId="category"
-                            {...field}
-                            label="category"
-                          >
-                            <MenuItem value={""}>choose category</MenuItem>
-                            {expenseCategories.data.map((category) => (
-                              <MenuItem key={category.id} value={category.id}>
-                                {category.name}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      );
-                    case "project":
-                      return (
-                        <FormControl fullWidth variant="outlined">
-                          <InputLabel id="project">Project</InputLabel>
-                          <Select labelId="project" {...field} label="project">
-                            <MenuItem value={""}>choose project</MenuItem>
-                            {projects.data.map((project) => (
-                              <MenuItem key={project.CODE} value={project.CODE}>
-                                {project.DESCRIPTION}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      );
-                    case "amount":
-                    default:
-                      return (
-                        <TextField
-                          {...field}
-                          label="Amount"
-                          variant="outlined"
-                          fullWidth
-                          helperText="Enter amount in format: <=100, >=100, <100, >100"
-                          slotProps={{
-                            input: {
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  MMK
-                                </InputAdornment>
-                              ),
-                            },
-                          }}
-                        />
-                      );
-                  }
-                }}
-              />
-            )} */}
             <TextField
               {...register("max_amount", {
                 required: "Max Amount is required!",
@@ -345,7 +260,6 @@ function PolicyForm() {
             <Controller
               name="department"
               control={control}
-              // rules={{ required: "Department is required!" }}
               render={({ field }) => (
                 <FormControl fullWidth variant="outlined">
                   <InputLabel id="department">Department</InputLabel>
@@ -410,48 +324,6 @@ function PolicyForm() {
           >
             Approver Level
           </Button>
-          {/* <Grid2 size={12}>
-            <Controller
-              name="approvers"
-              control={control}
-              rules={{ required: "Approver Roles is required!" }}
-              render={({ field }) => (
-                <FormControl variant="outlined" fullWidth>
-                  <InputLabel id="demo-multiple-chip-label">
-                    Approvers
-                  </InputLabel>
-                  <Select
-                    labelId="demo-multiple-chip-label"
-                    id="demo-multiple-chip"
-                    multiple
-                    {...field}
-                    input={<OutlinedInput label="Approvers" />}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {selected.map((value) => {
-                          const label = approvers.data.find(
-                            (a) => a.id === value
-                          ).name;
-                          return <Chip key={value} label={label} />;
-                        })}
-                      </Box>
-                    )}
-                  >
-                    {approvers.data.map((option) => (
-                      <MenuItem key={option.id} value={option.id}>
-                        {option.name} ({option.departments.name})
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-            />
-            {errors.approvers && (
-              <Typography variant="caption" color="error">
-                {errors.approvers.message}
-              </Typography>
-            )}
-          </Grid2> */}
         </Grid2>
         <Box
           display="flex"

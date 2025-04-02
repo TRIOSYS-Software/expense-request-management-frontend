@@ -20,7 +20,7 @@ import {
   fetchExpenseCategories,
   fetchExpenseRequestsByID,
   fetchUsers,
-  getLowLevelGLAccounts,
+  getGLAccounts,
   getPaymentMethods,
   getProjects,
   updateExpense,
@@ -54,7 +54,7 @@ const ExpenseForm = () => {
     },
     {
       queryKey: "glaccounts",
-      queryFn: () => getLowLevelGLAccounts(),
+      queryFn: () => getGLAccounts(),
     },
   ];
 
@@ -316,7 +316,7 @@ const ExpenseForm = () => {
                   >
                     <MenuItem value="">Choose an option</MenuItem>
                     {glAccounts.data.map((option) => (
-                      <MenuItem key={option.DOCKEY} value={option.CODE}>
+                      <MenuItem key={option.DOCKEY} value={option.DOCKEY}>
                         {option.DESCRIPTION}
                       </MenuItem>
                     ))}
@@ -399,8 +399,8 @@ const ExpenseForm = () => {
                   >
                     <MenuItem value="">Choose an option</MenuItem>
                     {paymentMethods.data.map((pm) => (
-                      <MenuItem key={pm.CODE} value={pm.CODE}>
-                        {pm.JOURNAL} ({pm.DESCRIPTION})
+                      <MenuItem key={pm.code} value={pm.code}>
+                        {pm.journal} ({pm.description})
                       </MenuItem>
                     ))}
                   </Select>

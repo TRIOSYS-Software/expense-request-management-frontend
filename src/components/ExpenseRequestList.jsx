@@ -137,8 +137,8 @@ const ExpenseCard = ({
   user,
   amount,
   project,
-  payment_method,
-  gl_account,
+  payment_methods,
+  gl_accounts,
   description,
   status,
   category,
@@ -304,12 +304,14 @@ const ExpenseCard = ({
               <Box>
                 <Typography variant="h6">Payment Method</Typography>
                 <Typography variant="body2">
-                  {payment_method || "----"}
+                  {payment_methods.description || "----"}
                 </Typography>
               </Box>
               <Box>
                 <Typography variant="h6">GL Account</Typography>
-                <Typography variant="body2">{gl_account || "----"}</Typography>
+                <Typography variant="body2">
+                  {gl_accounts.description || "----"}
+                </Typography>
               </Box>
             </Box>
           </Box>
