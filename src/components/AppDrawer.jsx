@@ -11,6 +11,7 @@ import {
   NaturePeople,
   PeopleAlt,
   Rule,
+  Payments,
 } from "@mui/icons-material";
 import {
   Box,
@@ -109,6 +110,19 @@ export default function AppDrawer({ showDrawer, setShowDrawer }) {
                       <PeopleAlt />
                     </ListItemIcon>
                     <ListItemText>Users Management</ListItemText>
+                  </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      navigate("/users/payment-methods");
+                      setShowDrawer(false);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <Payments />
+                    </ListItemIcon>
+                    <ListItemText>Payment Methods</ListItemText>
                   </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>

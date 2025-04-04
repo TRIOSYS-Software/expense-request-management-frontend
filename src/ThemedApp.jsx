@@ -18,6 +18,9 @@ import AdminRoute from "./pages/AdminRoute";
 import Categories from "./pages/Categories";
 import Departments from "./pages/Departments";
 import ExpenseFormToSQLACC from "./pages/ExpenseFormToSQLACC";
+import UserPaymentMethod from "./pages/UserPaymentMethod";
+import AssignPaymentMethod from "./pages/AssignPaymentMethod";
+import ChangePassword from "./pages/ChangePassword";
 
 const theme = createTheme({
   palette: {
@@ -77,6 +80,26 @@ const router = createBrowserRouter([
             <UserForm />
           </AdminRoute>
         ),
+      },
+      {
+        path: "/users/payment-methods",
+        element: (
+          <AdminRoute>
+            <UserPaymentMethod />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/users/payment-methods/assign",
+        element: (
+          <AdminRoute>
+            <AssignPaymentMethod />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/users/change-password",
+        element: <ChangePassword />,
       },
       {
         path: "/policies",

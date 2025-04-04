@@ -158,6 +158,15 @@ export async function fetchVerify(){
     return res.data;
 }
 
+export async function changePassword(id, data) {
+    const res = await axios.put(`${api}/users/${id}/change-password`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
 export async function getProjects(){
     const res = await axios.get(`${api}/projects`, {
         headers: {
@@ -344,4 +353,32 @@ export async function updateExpenseApprovals(id, data){
             'Authorization': `${getToken()}`
         }
     });
+    return res.data;
+}
+
+export async function getUsersWithPaymentMethods(){
+    const res = await axios.get(`${api}/users/payment-methods`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function setUserPaymentMethod(data){
+    const res = await axios.post(`${api}/users/set-payment-methods`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function getUserPaymentMethods(id){
+    const res = await axios.get(`${api}/users/${id}/payment-methods`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
 }

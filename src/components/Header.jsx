@@ -91,7 +91,14 @@ export default function Header({ setShowDrawer }) {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>My account</MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  navigate("/users/change-password");
+                }}
+              >
+                Change Password
+              </MenuItem>
               <MenuItem onClick={logout}>Logout</MenuItem>
             </Menu>
           </div>

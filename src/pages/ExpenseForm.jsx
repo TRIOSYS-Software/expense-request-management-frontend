@@ -23,6 +23,7 @@ import {
   getGLAccounts,
   getPaymentMethods,
   getProjects,
+  getUserPaymentMethods,
   updateExpense,
 } from "../libs/fetcher";
 import { useForm, Controller } from "react-hook-form";
@@ -56,12 +57,22 @@ const ExpenseForm = () => {
       queryKey: "glaccounts",
       queryFn: () => getGLAccounts(),
     },
+    {
+      queryKey: "user-payment-methods",
+      queryFn: () => getUserPaymentMethods(auth.id),
+    },
   ];
 
   const results = useQueries(queries);
 
-  const [expenseCategories, projects, users, paymentMethods, glAccounts] =
-    results;
+  const [
+    expenseCategories,
+    projects,
+    users,
+    paymentMethods,
+    glAccounts,
+    userPaymentMethods,
+  ] = results;
 
   // const approvers = users.data?.filter((user) => user.roles.id === 2);
 
@@ -94,6 +105,14 @@ const ExpenseForm = () => {
       gl_account: "",
     },
   });
+
+  const filteredPaymentMethods = paymentMethods.data?.filter((method) => {
+    return userPaymentMethods.data?.some((userMethod) => {
+      return userMethod.code === method.code;
+    });
+  });
+
+  console.log(filteredPaymentMethods);
 
   const create = useMutation(async (data) => createExpense(data), {
     onSuccess: async (data) => {
@@ -241,8 +260,8 @@ const ExpenseForm = () => {
                   <Select labelId="project-label" label="Project" {...field}>
                     <MenuItem value="">Choose an option</MenuItem>
                     {projects.data.map((option) => (
-                      <MenuItem key={option.CODE} value={option.CODE}>
-                        {option.DESCRIPTION}
+                      <MenuItem key={option.code} value={option.code}>
+                        {option.description}
                       </MenuItem>
                     ))}
                   </Select>
@@ -316,8 +335,8 @@ const ExpenseForm = () => {
                   >
                     <MenuItem value="">Choose an option</MenuItem>
                     {glAccounts.data.map((option) => (
-                      <MenuItem key={option.DOCKEY} value={option.DOCKEY}>
-                        {option.DESCRIPTION}
+                      <MenuItem key={option.dockey} value={option.dockey}>
+                        {option.description}
                       </MenuItem>
                     ))}
                   </Select>
@@ -393,12 +412,12 @@ const ExpenseForm = () => {
                 rules={{ required: "Payment Method is required" }}
                 render={({ field }) => (
                   <Select
-                    labelId="project-label"
+                    labelId="payment-label"
                     label="Payment Method"
                     {...field}
                   >
                     <MenuItem value="">Choose an option</MenuItem>
-                    {paymentMethods.data.map((pm) => (
+                    {filteredPaymentMethods.map((pm) => (
                       <MenuItem key={pm.code} value={pm.code}>
                         {pm.journal} ({pm.description})
                       </MenuItem>
@@ -408,58 +427,6 @@ const ExpenseForm = () => {
               />
             </FormControl>
           </Grid>
-          {/* <Grid size={12}>
-            <Controller
-              name="approver"
-              control={control}
-              rules={{
-                validate: (value) => {
-                  if (value.length > 3) {
-                    return "Only Select 3 Approvers.";
-                  }
-                  return true;
-                },
-              }}
-              render={({ field }) => (
-                <FormControl sx={{ width: "100%" }}>
-                  <InputLabel id="demo-multiple-chip-label">
-                    Approvers (optional)
-                  </InputLabel>
-                  <Select
-                    labelId="demo-multiple-chip-label"
-                    id="demo-multiple-chip"
-                    multiple
-                    {...field}
-                    input={<OutlinedInput label="Approvers (optional)" />}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {selected.map((value) => {
-                          const label = approvers.find(
-                            (a) => a.id === value
-                          ).name;
-                          return <Chip key={value} label={label} />;
-                        })}
-                      </Box>
-                    )}
-                  >
-                    {approvers.map((option) => (
-                      <MenuItem key={option.id} value={option.id}>
-                        {option.name} ({option.departments.name})
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <FormHelperText>
-                    Select up to 3 people to approve the expense. order matters!
-                  </FormHelperText>
-                </FormControl>
-              )}
-            />
-            {errors.approver && (
-              <Typography variant="body2" color="error">
-                {errors.approver.message}
-              </Typography>
-            )}
-          </Grid> */}
         </Grid>
         {errors.root && (
           <Typography variant="body2" color="error">
