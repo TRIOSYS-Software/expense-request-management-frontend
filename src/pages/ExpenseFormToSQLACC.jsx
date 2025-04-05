@@ -42,7 +42,7 @@ export default function ExpenseFormToSQLACC() {
 
   const [expenseRequest, paymentMethods] = results;
 
-  const sendToSQLACC = useMutation(sendtoSQLACC, {
+  const sendToSQLACC = useMutation((id) => sendtoSQLACC(id), {
     onSuccess: () => {
       setGlobalMsg("Expense sent to SQLACC successfully!");
       queryClient.invalidateQueries("expense-requests");
@@ -152,11 +152,7 @@ export default function ExpenseFormToSQLACC() {
           startIcon={<Send />}
           sx={{ display: { xs: "none", md: "flex" } }}
           onClick={() => {
-            const expense = {
-              expense_id: expenseRequest.data.id,
-              payment_method: expenseRequest.data.payment_method,
-            };
-            sendToSQLACC.mutate(expense);
+            sendToSQLACC.mutate(expenseRequest.data.id);
           }}
         >
           Submit

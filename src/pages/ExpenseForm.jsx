@@ -170,7 +170,6 @@ const ExpenseForm = () => {
     formData.append("user_id", auth.id);
     formData.append("payment_method", data.paymentMethod);
     formData.append("gl_account", data.gl_account);
-    console.log(data.attachment);
     if (id) {
       update.mutate(formData);
     } else {

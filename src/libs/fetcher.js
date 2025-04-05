@@ -310,8 +310,8 @@ export async function fetchExpenseRequestsByUserID(id){
     return res.data;
 }
 
-export async function sendtoSQLACC(data){
-    const res = await axios.post(`${api}/expense-requests/send-to-sqlacc`, data, {
+export async function sendtoSQLACC(id){
+    const res = await axios.post(`${api}/expense-requests/${id}/send-to-sqlacc`, null, {
         headers: {
             'Authorization': `${getToken()}`
         }
