@@ -291,8 +291,8 @@ function PolicyForm() {
                   <Select labelId="project" {...field} label="project">
                     <MenuItem value={""}>choose project</MenuItem>
                     {projects.data.map((project) => (
-                      <MenuItem key={project.CODE} value={project.CODE}>
-                        {project.DESCRIPTION}
+                      <MenuItem key={project.code} value={project.code}>
+                        {project.description}
                       </MenuItem>
                     ))}
                   </Select>

@@ -12,6 +12,10 @@ import {
   PeopleAlt,
   Rule,
   Payments,
+  ListAlt,
+  PaymentRounded,
+  WorkHistory,
+  WorkOutline,
 } from "@mui/icons-material";
 import {
   Box,
@@ -112,20 +116,7 @@ export default function AppDrawer({ showDrawer, setShowDrawer }) {
                     <ListItemText>Users Management</ListItemText>
                   </ListItemButton>
                 </ListItem>
-                <ListItem disablePadding>
-                  <ListItemButton
-                    onClick={() => {
-                      navigate("/users/payment-methods");
-                      setShowDrawer(false);
-                    }}
-                  >
-                    <ListItemIcon>
-                      <Payments />
-                    </ListItemIcon>
-                    <ListItemText>Payment Methods</ListItemText>
-                  </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
+                {/* <ListItem disablePadding>
                   <ListItemButton
                     onClick={() => {
                       navigate("/categories");
@@ -136,6 +127,58 @@ export default function AppDrawer({ showDrawer, setShowDrawer }) {
                       <Category />
                     </ListItemIcon>
                     <ListItemText>Categories</ListItemText>
+                  </ListItemButton>
+                </ListItem> */}
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      navigate("/gl-accounts");
+                      setShowDrawer(false);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <ListAlt />
+                    </ListItemIcon>
+                    <ListItemText>GL Accounts</ListItemText>
+                  </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      navigate("/payment-methods");
+                      setShowDrawer(false);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <PaymentRounded />
+                    </ListItemIcon>
+                    <ListItemText>Payment Methods</ListItemText>
+                  </ListItemButton>
+                </ListItem>
+                {/* <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      navigate("/users/payment-methods");
+                      setShowDrawer(false);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <Payments />
+                    </ListItemIcon>
+                    <ListItemText>Assign PM</ListItemText>
+                  </ListItemButton>
+                </ListItem> */}
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      navigate("/projects");
+                      setShowDrawer(false);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <WorkOutline />
+                    </ListItemIcon>
+                    <ListItemText>Projects</ListItemText>
                   </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>

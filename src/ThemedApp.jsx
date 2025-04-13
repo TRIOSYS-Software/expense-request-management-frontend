@@ -21,6 +21,9 @@ import ExpenseFormToSQLACC from "./pages/ExpenseFormToSQLACC";
 import UserPaymentMethod from "./pages/UserPaymentMethod";
 import AssignPaymentMethod from "./pages/AssignPaymentMethod";
 import ChangePassword from "./pages/ChangePassword";
+import GLAccounts from "./pages/GLAccounts";
+import PaymentMethods from "./pages/PaymentMethods";
+import Projects from "./pages/Projects";
 
 const theme = createTheme({
   palette: {
@@ -82,7 +85,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/users/payment-methods",
+        path: "/payment-methods/assign",
         element: (
           <AdminRoute>
             <UserPaymentMethod />
@@ -90,7 +93,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/users/payment-methods/assign",
+        path: "/payment-methods/assign/form",
         element: (
           <AdminRoute>
             <AssignPaymentMethod />
@@ -100,6 +103,30 @@ const router = createBrowserRouter([
       {
         path: "/users/change-password",
         element: <ChangePassword />,
+      },
+      {
+        path: "/gl-accounts",
+        element: (
+          <AdminRoute>
+            <GLAccounts />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/payment-methods",
+        element: (
+          <AdminRoute>
+            <PaymentMethods />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/projects",
+        element: (
+          <AdminRoute>
+            <Projects />
+          </AdminRoute>
+        ),
       },
       {
         path: "/policies",

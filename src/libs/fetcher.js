@@ -176,6 +176,15 @@ export async function getProjects(){
     return res.data;
 }
 
+export async function syncProjects(){
+    const res = await axios.post(`${api}/projects/sync`, null, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
 export async function getPaymentMethods(){
     const res = await axios.get(`${api}/payment-methods`, {
         headers: {
@@ -185,8 +194,26 @@ export async function getPaymentMethods(){
     return res.data;
 }
 
+export async function syncPaymentMethods(){
+    const res = await axios.post(`${api}/payment-methods/sync`, null, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
 export async function getGLAccounts(){
     const res = await axios.get(`${api}/gl-acc`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function syncGLAccounts(){
+    const res = await axios.post(`${api}/gl-acc/sync`, null, {
         headers: {
             'Authorization': `${getToken()}`
         }

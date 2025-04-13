@@ -294,7 +294,7 @@ const ExpenseForm = () => {
               </Typography>
             )}
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          {/* <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel id="category-label">Category</InputLabel>
               <Controller
@@ -318,8 +318,8 @@ const ExpenseForm = () => {
                 {errors.category.message}
               </Typography>
             )}
-          </Grid>
-          <Grid size={12}>
+          </Grid> */}
+          <Grid size={6}>
             <FormControl fullWidth>
               <InputLabel id="gl-account-label">GL Account</InputLabel>
               <Controller
@@ -425,6 +425,11 @@ const ExpenseForm = () => {
                 )}
               />
             </FormControl>
+            {errors.paymentMethod && (
+              <Typography variant="body2" color="error">
+                {errors.paymentMethod.message}
+              </Typography>
+            )}
           </Grid>
         </Grid>
         {errors.root && (
