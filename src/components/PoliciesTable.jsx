@@ -99,7 +99,7 @@ export function PoliciesTable() {
                   ))}
                 </TableCell>
                 <TableCell>{rule.departments.name || "-"}</TableCell>
-                <TableCell>{rule.project}</TableCell>
+                <TableCell>{rule.projects.description}</TableCell>
                 <TableCell>
                   <IconButton
                     color="primary"

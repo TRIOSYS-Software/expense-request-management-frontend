@@ -100,6 +100,10 @@ export default function ExpenseRequestList({ data }) {
     return data?.filter((expense) => expense.status === status);
   };
 
+  const pendingExpenseRequest = filterByStatus("pending");
+  const approvedExpenseRequest = filterByStatus("approved");
+  const rejectedExpenseRequest = filterByStatus("rejected");
+
   return (
     <Box>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -108,22 +112,80 @@ export default function ExpenseRequestList({ data }) {
           onChange={handleChange}
           aria-label="basic tabs example"
         >
-          <Tab label="Pending" {...a11yProps(0)} />
-          <Tab label="Approved" {...a11yProps(1)} />
-          <Tab label="Rejected" {...a11yProps(2)} />
+          <Tab
+            label={
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                ALL
+                <Chip
+                  label={data.length}
+                  color="primary"
+                  size="small"
+                  sx={{ ml: 1 }}
+                />
+              </Box>
+            }
+            {...a11yProps(0)}
+          />
+          <Tab
+            label={
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                Pending
+                <Chip
+                  label={pendingExpenseRequest.length}
+                  color="warning"
+                  size="small"
+                  sx={{ ml: 1 }}
+                />
+              </Box>
+            }
+            {...a11yProps(1)}
+          />
+          <Tab
+            label={
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                Approved
+                <Chip
+                  label={approvedExpenseRequest.length}
+                  color="success"
+                  size="small"
+                  sx={{ ml: 1 }}
+                />
+              </Box>
+            }
+            {...a11yProps(2)}
+          />
+          <Tab
+            label={
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                Rejected
+                <Chip
+                  label={rejectedExpenseRequest.length}
+                  color="error"
+                  size="small"
+                  sx={{ ml: 1 }}
+                />
+              </Box>
+            }
+            {...a11yProps(3)}
+          />
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>
-        {filterByStatus("pending")?.map((expense) => (
+        {data?.map((expense) => (
           <ExpenseCard key={expense.id} auth={auth} {...expense} />
         ))}
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        {filterByStatus("approved")?.map((expense) => (
+        {filterByStatus("pending")?.map((expense) => (
           <ExpenseCard key={expense.id} auth={auth} {...expense} />
         ))}
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
+        {filterByStatus("approved")?.map((expense) => (
+          <ExpenseCard key={expense.id} auth={auth} {...expense} />
+        ))}
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={3}>
         {filterByStatus("rejected")?.map((expense) => (
           <ExpenseCard key={expense.id} auth={auth} {...expense} />
         ))}
@@ -136,7 +198,7 @@ const ExpenseCard = ({
   id,
   user,
   amount,
-  project,
+  projects,
   payment_methods,
   gl_accounts,
   description,
@@ -210,9 +272,6 @@ const ExpenseCard = ({
           </Box>
           <Box>
             <Typography variant="h6">{user?.name || "-"}</Typography>
-            <Typography variant="body2">
-              Project: {project || "----"}
-            </Typography>
           </Box>
           <Box>
             <Typography variant="h6">
@@ -221,7 +280,6 @@ const ExpenseCard = ({
                 maximumFractionDigits: 4,
               })}
             </Typography>
-            <Typography variant="body2">{category?.name || "-"}</Typography>
           </Box>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -251,37 +309,25 @@ const ExpenseCard = ({
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <Divider />
         <Card>
-          <Box sx={{ p: 2, display: "flex", justifyContent: "space-between" }}>
+          <Box
+            sx={{
+              p: 2,
+              display: "flex",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 2,
+            }}
+          >
             <Box>
               <Typography variant="h6">Description</Typography>
               <Typography variant="body2">{description}</Typography>
             </Box>
-            {status === "pending" && auth.role === 3 && (
-              <Box>
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => {
-                    navigate(`/expenses/form/${id}`);
-                  }}
-                >
-                  Edit
-                </Button>
-                <Button
-                  sx={{ ml: 2 }}
-                  variant="contained"
-                  size="small"
-                  color="error"
-                  onClick={() => {
-                    deleteExpense.mutate(id);
-                  }}
-                >
-                  Delete
-                </Button>
-              </Box>
-            )}
-          </Box>
-          <Box sx={{ p: 2, display: "flex", justifyContent: "space-between" }}>
+            <Box>
+              <Typography variant="h6">Project</Typography>
+              <Typography variant="body2">
+                {projects.description || "-"}
+              </Typography>
+            </Box>
             <Box>
               <Typography variant="h6">Attachment</Typography>
               {attachment ? (
@@ -300,13 +346,13 @@ const ExpenseCard = ({
                 <Typography variant="body2">----</Typography>
               )}
             </Box>
+            <Box>
+              <Typography variant="h6">Payment Method</Typography>
+              <Typography variant="body2">
+                {payment_methods.description || "----"}
+              </Typography>
+            </Box>
             <Box sx={{ display: "flex", gap: 2 }}>
-              <Box>
-                <Typography variant="h6">Payment Method</Typography>
-                <Typography variant="body2">
-                  {payment_methods.description || "----"}
-                </Typography>
-              </Box>
               <Box>
                 <Typography variant="h6">GL Account</Typography>
                 <Typography variant="body2">
@@ -315,6 +361,65 @@ const ExpenseCard = ({
               </Box>
             </Box>
           </Box>
+          {status === "pending" && auth.role === 3 && (
+            <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end" }}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  navigate(`/expenses/form/${id}`);
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                sx={{ ml: 2 }}
+                variant="contained"
+                size="small"
+                color="error"
+                onClick={() => {
+                  deleteExpense.mutate(id);
+                }}
+              >
+                Delete
+              </Button>
+            </Box>
+          )}
+          {/* <Box sx={{ p: 2, display: "flex", justifyContent: "space-between" }}>
+            <Box>
+              <Typography variant="h6">Attachment</Typography>
+              {attachment ? (
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="primary"
+                  onClick={() => {
+                    handleView(attachment);
+                  }}
+                  download
+                >
+                  View
+                </Button>
+              ) : (
+                <Typography variant="body2">----</Typography>
+              )}
+            </Box>
+            <Box>
+              <Typography variant="h6">Payment Method</Typography>
+              <Typography variant="body2">
+                {payment_methods.description || "----"}
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <Box>
+                <Typography variant="h6">GL Account</Typography>
+                <Typography variant="body2">
+                  {gl_accounts.description || "----"}
+                </Typography>
+              </Box>
+            </Box>
+          </Box> */}
+          <Divider />
           <Box sx={{ p: 2 }}>
             <Typography variant="h6">Comments</Typography>
             {approvals.map((approval) => (

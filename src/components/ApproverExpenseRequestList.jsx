@@ -1,5 +1,6 @@
 import {
   Alert,
+  Badge,
   Box,
   Button,
   Card,
@@ -176,11 +177,11 @@ export default function ApproverExpenseRequestList({ data }) {
               <Typography>{date.toLocaleDateString()}</Typography>
             </Box>
             <Box sx={{ display: "flex", justifyContent: "flex-start", gap: 1 }}>
-              <Chip
+              {/* <Chip
                 label={expense.category.name}
                 sx={{ my: 1 }}
                 color="secondary"
-              />
+              /> */}
               <Chip label={expense.project} sx={{ my: 1 }} color="secondary" />
             </Box>
           </Box>
@@ -234,14 +235,16 @@ export default function ApproverExpenseRequestList({ data }) {
                 Payment Method
               </Typography>
               <Typography component={"p"} variant="body2">
-                {expense.payment_method}
+                {expense.payment_methods.description || "-"}
               </Typography>
             </Box>
             <Box>
               <Typography variant="h6" component={"div"}>
                 GL Account
               </Typography>
-              <Typography variant="body2">{expense.gl_account}</Typography>
+              <Typography variant="body2">
+                {expense.gl_accounts.description || "-"}
+              </Typography>
             </Box>
           </Box>
           <Divider sx={{ my: 2 }} />
@@ -341,10 +344,62 @@ export default function ApproverExpenseRequestList({ data }) {
         onChange={handleChange}
         aria-label="basic tabs example"
       >
-        <Tab label="All" {...a11yProps(0)} />
-        <Tab label="Pending" {...a11yProps(1)} />
-        <Tab label="Approved" {...a11yProps(2)} />
-        <Tab label="Rejected" {...a11yProps(3)} />
+        <Tab
+          label={
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              All
+              <Chip
+                label={data.length}
+                color="primary"
+                size="small"
+                sx={{ ml: 1 }}
+              />
+            </Box>
+          }
+          {...a11yProps(0)}
+        />
+        <Tab
+          label={
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              Pending
+              <Chip
+                label={pendingExpenseRequest.length}
+                color="warning"
+                size="small"
+                sx={{ ml: 1 }}
+              />
+            </Box>
+          }
+          {...a11yProps(1)}
+        />
+        <Tab
+          label={
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              Approved
+              <Chip
+                label={approvedExpenseRequest.length}
+                color="success"
+                size="small"
+                sx={{ ml: 1 }}
+              />
+            </Box>
+          }
+          {...a11yProps(2)}
+        />
+        <Tab
+          label={
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              Rejected
+              <Chip
+                label={approvedExpenseRequest.length}
+                color="error"
+                size="small"
+                sx={{ ml: 1 }}
+              />
+            </Box>
+          }
+          {...a11yProps(3)}
+        />
       </Tabs>
       <CustomTabPanel value={value} index={0}>
         {renderExpenseList(data)}
