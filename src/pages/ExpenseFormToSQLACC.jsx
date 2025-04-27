@@ -1,4 +1,4 @@
-import { useMutation, useQueries, useQuery } from "react-query";
+import { useMutation, useQueries } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   fetchExpenseRequestsByID,
@@ -11,11 +11,7 @@ import {
   Button,
   CircularProgress,
   Divider,
-  FormControl,
-  InputLabel,
-  MenuItem,
   Paper,
-  Select,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
@@ -82,13 +78,6 @@ export default function ExpenseFormToSQLACC() {
       </Box>
       <Divider />
       <Box sx={{ display: "flex", justifyContent: "space-between", my: 2 }}>
-        <Typography variant="body2">Category :</Typography>
-        <Typography variant="body2">
-          {expenseRequest.data.category.name}
-        </Typography>
-      </Box>
-      <Divider />
-      <Box sx={{ display: "flex", justifyContent: "space-between", my: 2 }}>
         <Typography variant="body2">Description :</Typography>
         <Typography variant="body2">
           {expenseRequest.data.description}
@@ -97,7 +86,9 @@ export default function ExpenseFormToSQLACC() {
       <Divider />
       <Box sx={{ display: "flex", justifyContent: "space-between", my: 2 }}>
         <Typography variant="body2">Project :</Typography>
-        <Typography variant="body2">{expenseRequest.data.project}</Typography>
+        <Typography variant="body2">
+          {expenseRequest.data.projects.description || "N/A"}
+        </Typography>
       </Box>
       <Divider />
       <Box sx={{ display: "flex", justifyContent: "space-between", my: 2 }}>
@@ -127,14 +118,14 @@ export default function ExpenseFormToSQLACC() {
       <Box sx={{ display: "flex", justifyContent: "space-between", my: 2 }}>
         <Typography variant="body2">Payment Methods :</Typography>
         <Typography variant="body2">
-          {expenseRequest.data.payment_method}
+          {expenseRequest.data.payment_methods.description || "N/A"}
         </Typography>
       </Box>
       <Divider />
       <Box sx={{ display: "flex", justifyContent: "space-between", my: 2 }}>
         <Typography variant="body2">GL Account :</Typography>
         <Typography variant="body2">
-          {expenseRequest.data.gl_account}
+          {expenseRequest.data.gl_accounts.description || "N/A"}
         </Typography>
       </Box>
       <Divider />

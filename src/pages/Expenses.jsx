@@ -30,32 +30,36 @@ export default function Expenses() {
         id: item.id,
         amount: item.amount,
         description: item.description,
-        category_id: item.category_id,
+        // category_id: item.category_id,
         project: item.project,
         payment_method: item.payment_method,
         user_id: item.user_id,
-        gl_account: item.gl_account,
-        date_submitted: item.date_submitted,
-        created_at: item.created_at,
-        updated_at: item.updated_at,
+        gl_account: item.gl_accounts.code,
+        gl_account_description: item.gl_accounts.description,
+        date_submitted: new Date(item.date_submitted).toLocaleDateString(),
+        created_at: new Date(item.created_at).toLocaleString(),
+        updated_at: new Date(item.updated_at).toLocaleString(),
         status: item.status,
         current_approver_level: item.current_approver_level,
         is_send_to_sql_acc: item.is_send_to_sql_acc,
-        category_name: item.category.name, // Flatten category
         user_name: item.user.name, // Flatten user
         user_email: item.user.email, // Flatten user
       };
 
       // Flatten approvals
       item.approvals.forEach((approval, index) => {
+        const approvers = [];
+        approvers.push(`(${approval.users.name}, level: ${approval.level})`);
+        flattened[`approvers`] = approvers.join(", ");
         flattened[`approval_${index + 1}_id`] = approval.id;
         flattened[`approval_${index + 1}_approver_name`] = approval.users.name;
         flattened[`approval_${index + 1}_approver_email`] =
           approval.users.email;
         flattened[`approval_${index + 1}_status`] = approval.status;
         flattened[`approval_${index + 1}_comments`] = approval.comments;
-        flattened[`approval_${index + 1}_approval_date`] =
-          approval.approval_date;
+        flattened[`approval_${index + 1}_approval_date`] = new Date(
+          approval.approval_date
+        ).toLocaleString();
         flattened[`approval_${index + 1}_is_final`] = approval.is_final;
       });
 

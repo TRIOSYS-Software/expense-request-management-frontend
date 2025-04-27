@@ -12,6 +12,7 @@ import {
   InputLabel,
   Select,
   IconButton,
+  Autocomplete,
 } from "@mui/material";
 import { Send, ArrowBackIos, BackHand, ArrowBack } from "@mui/icons-material";
 import { useMutation, useQueries, useQuery } from "react-query";
@@ -111,8 +112,6 @@ const ExpenseForm = () => {
       return userMethod.code === method.code;
     });
   });
-
-  console.log(filteredPaymentMethods);
 
   const create = useMutation(async (data) => createExpense(data), {
     onSuccess: async (data) => {
@@ -294,54 +293,35 @@ const ExpenseForm = () => {
               </Typography>
             )}
           </Grid>
-          {/* <Grid size={{ xs: 12, sm: 6 }}>
-            <FormControl fullWidth>
-              <InputLabel id="category-label">Category</InputLabel>
-              <Controller
-                name="category"
-                control={control}
-                rules={{ required: "Category is required" }}
-                render={({ field }) => (
-                  <Select labelId="category-label" label="Category" {...field}>
-                    <MenuItem value="">Choose an option</MenuItem>
-                    {expenseCategories.data.map((option) => (
-                      <MenuItem key={option.id} value={option.id}>
-                        {option.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-              />
-            </FormControl>
-            {errors.category && (
-              <Typography variant="body2" color="error">
-                {errors.category.message}
-              </Typography>
-            )}
-          </Grid> */}
           <Grid size={6}>
-            <FormControl fullWidth>
-              <InputLabel id="gl-account-label">GL Account</InputLabel>
-              <Controller
-                name="gl_account"
-                control={control}
-                rules={{ required: "gl_account is required" }}
-                render={({ field }) => (
-                  <Select
-                    labelId="gl-account-label"
-                    label="GL Account"
-                    {...field}
-                  >
-                    <MenuItem value="">Choose an option</MenuItem>
-                    {glAccounts.data.map((option) => (
-                      <MenuItem key={option.dockey} value={option.dockey}>
-                        {option.description}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-              />
-            </FormControl>
+            <Controller
+              name="gl_account"
+              control={control}
+              rules={{ required: "GL Account is required" }}
+              render={({ field: { onChange, onBlur, value, ref } }) => (
+                <Autocomplete
+                  options={glAccounts.data}
+                  getOptionLabel={(option) =>
+                    `${option.code} - ${option.description}`
+                  }
+                  onChange={(event, newValue) => onChange(newValue?.dockey)}
+                  onBlur={onBlur}
+                  value={
+                    glAccounts.data.find((option) => {
+                      return option.dockey == value;
+                    }) || null
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="GL Account"
+                      slotProps={{ inputLabel: { shrink: true } }}
+                      inputRef={ref}
+                    />
+                  )}
+                />
+              )}
+            />
             {errors.gl_account && (
               <Typography variant="body2" color="error">
                 {errors.gl_account.message}

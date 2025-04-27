@@ -2,6 +2,7 @@ import { Box, Button, Typography } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { PoliciesTable } from "../components/PoliciesTable";
 import { useNavigate } from "react-router-dom";
+import PoliciesDataTable from "../components/PoliciesDataTable";
 
 export function Policies() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export function Policies() {
           Policy
         </Button>
       </Box>
-      <PoliciesTable />
+      <PoliciesDataTable />
     </Box>
   );
 }

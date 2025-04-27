@@ -223,6 +223,7 @@ function PolicyForm() {
               {...register("min_amount", {
                 required: "Min Amount is required!",
               })}
+              slotProps={{ inputLabel: { shrink: id ? true : false } }}
               type="number"
               label="Min Amount"
               variant="outlined"
@@ -245,6 +246,7 @@ function PolicyForm() {
                   return true;
                 },
               })}
+              slotProps={{ inputLabel: { shrink: id ? true : false } }}
               type="number"
               label="Max Amount"
               variant="outlined"

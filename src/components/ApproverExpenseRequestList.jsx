@@ -121,6 +121,7 @@ export default function ApproverExpenseRequestList({ data }) {
     };
     update.mutate(data);
     handleClose();
+    setComments("");
   };
 
   const handleView = async (file) => {
