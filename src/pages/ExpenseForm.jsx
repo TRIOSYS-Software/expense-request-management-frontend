@@ -24,6 +24,7 @@ import {
   getGLAccounts,
   getPaymentMethods,
   getProjects,
+  getUserGLAccounts,
   getUserPaymentMethods,
   updateExpense,
 } from "../libs/fetcher";
@@ -62,6 +63,10 @@ const ExpenseForm = () => {
       queryKey: "user-payment-methods",
       queryFn: () => getUserPaymentMethods(auth.id),
     },
+    {
+      queryKey: "user-gl-accounts",
+      queryFn: () => getUserGLAccounts(auth.id),
+    },
   ];
 
   const results = useQueries(queries);
@@ -73,6 +78,7 @@ const ExpenseForm = () => {
     paymentMethods,
     glAccounts,
     userPaymentMethods,
+    userGLAccounts,
   ] = results;
 
   // const approvers = users.data?.filter((user) => user.roles.id === 2);
@@ -110,6 +116,12 @@ const ExpenseForm = () => {
   const filteredPaymentMethods = paymentMethods.data?.filter((method) => {
     return userPaymentMethods.data?.some((userMethod) => {
       return userMethod.code === method.code;
+    });
+  });
+
+  const filteredGLAccounts = glAccounts.data?.filter((account) => {
+    return userGLAccounts.data?.some((userAccount) => {
+      return userAccount.code === account.code;
     });
   });
 
@@ -300,14 +312,14 @@ const ExpenseForm = () => {
               rules={{ required: "GL Account is required" }}
               render={({ field: { onChange, onBlur, value, ref } }) => (
                 <Autocomplete
-                  options={glAccounts.data}
+                  options={filteredGLAccounts}
                   getOptionLabel={(option) =>
                     `${option.code} - ${option.description}`
                   }
                   onChange={(event, newValue) => onChange(newValue?.dockey)}
                   onBlur={onBlur}
                   value={
-                    glAccounts.data.find((option) => {
+                    filteredGLAccounts.find((option) => {
                       return option.dockey == value;
                     }) || null
                   }

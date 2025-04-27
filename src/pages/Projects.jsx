@@ -28,7 +28,7 @@ export default function Projects() {
   return (
     <Box sx={{ px: 4 }}>
       <Box sx={{ py: 2, display: "flex", justifyContent: "space-between" }}>
-        <Typography variant="h5">Payment Methods</Typography>
+        <Typography variant="h5">Projects</Typography>
         <Button
           loading={loading}
           onClick={onClick}

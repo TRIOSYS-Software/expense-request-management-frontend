@@ -1,10 +1,11 @@
-import { Paper } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 import { useMutation, useQuery } from "react-query";
 import { deletePolicy, fetchPolicies } from "../libs/fetcher";
 import { Delete, Edit } from "@mui/icons-material";
 import { queryClient, useApp } from "../ThemedApp";
 import { useNavigate } from "react-router-dom";
+import { render } from "react-dom";
 
 export default function PoliciesDataTable() {
   const { setGlobalMsg } = useApp();
@@ -33,28 +34,39 @@ export default function PoliciesDataTable() {
     {
       field: "min_amount",
       headerName: "Min Amount",
-      width: 130,
-      editable: true,
+      flex: 1,
     },
-    { field: "max_amount", headerName: "Max Amount", width: 130 },
+    { field: "max_amount", headerName: "Max Amount", flex: 1 },
     {
       field: "projects",
       headerName: "Project",
-      width: 130,
+      flex: 1,
       valueGetter: (value, row) => value.description,
     },
     {
       field: "departments",
       headerName: "Department",
-      width: 130,
+      flex: 1,
       valueGetter: (value, row) => value.name || "N/A",
     },
     {
       field: "policy_users",
       headerName: "Approvers",
       flex: 1,
-      valueGetter: (value, row) =>
-        value.map((v) => `${v.Approver.name} - ${v.level}`),
+      valueGetter: (value, row) => value,
+      renderCell: (params) => {
+        return (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {params.value.map((v) => {
+              return (
+                <Typography variant="body2">
+                  {v.Approver.name + "- Level " + v.level}
+                </Typography>
+              );
+            })}
+          </Box>
+        );
+      },
     },
     {
       headerName: "Actions",
@@ -93,7 +105,16 @@ export default function PoliciesDataTable() {
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <DataGrid rows={data} columns={column} />
+      <DataGrid
+        rows={data}
+        columns={column}
+        getRowHeight={() => "auto"}
+        sx={{
+          "& .MuiDataGrid-cell": {
+            py: 1, // Set padding for all cells
+          },
+        }}
+      />
     </Paper>
   );
 }

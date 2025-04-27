@@ -409,3 +409,30 @@ export async function getUserPaymentMethods(id){
     });
     return res.data;
 }
+
+export async function setUserGLAccounts(data){
+    const res = await axios.post(`${api}/users/set-gl-accounts`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function getUserGLAccounts(id){
+    const res = await axios.get(`${api}/users/${id}/gl-accounts`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function getUsersWithGLAccounts(){
+    const res = await axios.get(`${api}/users/gl-accounts`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}

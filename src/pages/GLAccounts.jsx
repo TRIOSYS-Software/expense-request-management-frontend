@@ -1,14 +1,17 @@
-import { Sync } from "@mui/icons-material";
+import { Add, Sync } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import GLAccountsTable from "../components/GLAccountsTable";
 import { useMutation } from "react-query";
 import { queryClient, useApp } from "../ThemedApp";
 import { syncGLAccounts } from "../libs/fetcher";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function GLAccounts() {
   const [loading, setLoading] = useState(false);
   const { setGlobalMsg } = useApp();
+  const navigate = useNavigate();
+
   const sync = useMutation(syncGLAccounts, {
     onSuccess: () => {
       setLoading(false);
@@ -23,20 +26,37 @@ export default function GLAccounts() {
     },
   });
 
-  const onClick = () => sync.mutate();
+  const handleSync = () => sync.mutate();
 
   return (
     <Box sx={{ px: 4 }}>
       <Box sx={{ py: 2, display: "flex", justifyContent: "space-between" }}>
         <Typography variant="h5">GL Accounts</Typography>
-        <Button
-          loading={loading}
-          onClick={onClick}
-          variant="contained"
-          startIcon={<Sync />}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2,
+          }}
         >
-          Sync
-        </Button>
+          <Button
+            loading={loading}
+            onClick={handleSync}
+            variant="contained"
+            startIcon={<Sync />}
+          >
+            Sync
+          </Button>
+          <Button
+            loading={loading}
+            onClick={() => navigate("/gl-accounts/assign")}
+            variant="contained"
+            startIcon={<Add />}
+          >
+            Assign
+          </Button>
+        </Box>
       </Box>
       <Box>
         <GLAccountsTable />

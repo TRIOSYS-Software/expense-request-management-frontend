@@ -17,6 +17,7 @@ import {
 import { useQuery } from "react-query";
 import { getUsersWithPaymentMethods } from "../libs/fetcher";
 import { useNavigate } from "react-router-dom";
+import { DataGrid } from "@mui/x-data-grid";
 
 export default function UserPaymentMethod() {
   const navigate = useNavigate();
@@ -25,21 +26,41 @@ export default function UserPaymentMethod() {
     getUsersWithPaymentMethods
   );
 
-  //   if (isLoading) {
-  //     return (
-  //       <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
-  //         <CircularProgress />
-  //       </Box>
-  //     );
-  //   }
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-  //   if (isError) {
-  //     return (
-  //       <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
-  //         <Alert severity="error">{error.message}</Alert>
-  //       </Box>
-  //     );
-  //   }
+  if (isError) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
+        <Alert severity="error">{error.message}</Alert>
+      </Box>
+    );
+  }
+
+  const columns = [
+    { field: "name", headerName: "Name", flex: 1 },
+    {
+      field: "payment_methods",
+      headerName: "Payment Methods",
+      flex: 2,
+      valueGetter: (value, row) =>
+        value.map((v) => `${v.code} (${v.description})`),
+      renderCell: (params) => {
+        return (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {params.value.map((v) => (
+              <Typography variant="body2">{v}</Typography>
+            ))}
+          </Box>
+        );
+      },
+    },
+  ];
 
   return (
     <Box sx={{ px: 4 }}>
@@ -68,7 +89,7 @@ export default function UserPaymentMethod() {
         </Box>
       </Box>
       <Box>
-        <TableContainer component={Paper}>
+        {/* <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
               <TableRow>
@@ -98,7 +119,19 @@ export default function UserPaymentMethod() {
               ))}
             </TableBody>
           </Table>
-        </TableContainer>
+        </TableContainer> */}
+        <DataGrid
+          rows={data}
+          columns={columns}
+          pageSize={5}
+          rowsPerPageOptions={[5]}
+          getRowHeight={() => "auto"}
+          sx={{
+            "& .MuiDataGrid-cell": {
+              py: 1, // Set padding for all cells
+            },
+          }}
+        />
       </Box>
     </Box>
   );

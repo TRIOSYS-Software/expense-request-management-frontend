@@ -18,6 +18,7 @@ import { fetchUsers } from "../libs/fetcher";
 import { Delete, Edit, Search } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 
 function UsersTable() {
   const navigate = useNavigate();
@@ -46,6 +47,8 @@ function UsersTable() {
     });
   }
 
+  console.log(filterdUsers);
+
   if (isLoading) {
     return (
       <Box
@@ -68,9 +71,58 @@ function UsersTable() {
     );
   }
 
+  const columns = [
+    { field: "id", headerName: "ID", width: 70 },
+    { field: "name", headerName: "Name", flex: 1 },
+    { field: "email", headerName: "Email", flex: 1 },
+    {
+      field: "roles",
+      headerName: "Role",
+      flex: 1,
+      valueGetter: (value, row) => value?.name || "N/A",
+    },
+    {
+      field: "departments",
+      headerName: "Department",
+      flex: 1,
+      valueGetter: (value, row) => value?.name || "N/A",
+    },
+    {
+      headerName: "Actions",
+      field: "actions",
+      type: "actions",
+      cellClassName: "actions",
+      width: 130,
+      getActions: ({ id }) => {
+        return [
+          <GridActionsCellItem
+            icon={<Edit />}
+            label="Edit"
+            material={{
+              sx: {
+                color: "primary.main",
+              },
+            }}
+            onClick={() => handleEdit(id)}
+          />,
+          <GridActionsCellItem
+            icon={<Delete />}
+            label="Delete"
+            onClick={() => handleDelete(id)}
+            material={{
+              sx: {
+                color: "error.main",
+              },
+            }}
+          />,
+        ];
+      },
+    },
+  ];
+
   return (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+      {/* <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <TextField
           label="Search"
           size="small"
@@ -88,46 +140,56 @@ function UsersTable() {
             },
           }}
         />
-      </Box>
+      </Box> */}
       {filterdUsers?.length > 0 ? (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell>Department</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filterdUsers.map((user, index) => (
-                <TableRow key={index}>
-                  <TableCell>{user.id}</TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.roles?.name}</TableCell>
-                  <TableCell>{user.departments?.name || "-"}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      color="primary"
-                      onClick={() => {
-                        navigate(`/users/form/${user.id}`);
-                      }}
-                    >
-                      <Edit />
-                    </IconButton>
-                    <IconButton color="primary" onClick={() => {}}>
-                      <Delete />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        // <TableContainer component={Paper}>
+        //   <Table>
+        //     <TableHead>
+        //       <TableRow>
+        //         <TableCell>ID</TableCell>
+        //         <TableCell>Name</TableCell>
+        //         <TableCell>Email</TableCell>
+        //         <TableCell>Role</TableCell>
+        //         <TableCell>Department</TableCell>
+        //         <TableCell>Actions</TableCell>
+        //       </TableRow>
+        //     </TableHead>
+        //     <TableBody>
+        //       {filterdUsers.map((user, index) => (
+        //         <TableRow key={index}>
+        //           <TableCell>{user.id}</TableCell>
+        //           <TableCell>{user.name}</TableCell>
+        //           <TableCell>{user.email}</TableCell>
+        //           <TableCell>{user.roles?.name}</TableCell>
+        //           <TableCell>{user.departments?.name || "-"}</TableCell>
+        //           <TableCell>
+        //             <IconButton
+        //               color="primary"
+        //               onClick={() => {
+        //                 navigate(`/users/form/${user.id}`);
+        //               }}
+        //             >
+        //               <Edit />
+        //             </IconButton>
+        //             <IconButton color="primary" onClick={() => {}}>
+        //               <Delete />
+        //             </IconButton>
+        //           </TableCell>
+        //         </TableRow>
+        //       ))}
+        //     </TableBody>
+        //   </Table>
+        // </TableContainer>
+        <DataGrid
+          rows={filterdUsers}
+          columns={columns}
+          sx={{
+            "& .MuiDataGrid-cell": {
+              py: 1, // Set padding for all cells
+            },
+          }}
+          getRowHeight={() => "auto"}
+        />
       ) : (
         <Alert severity="info">No users found</Alert>
       )}

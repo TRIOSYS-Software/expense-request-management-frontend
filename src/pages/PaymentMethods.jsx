@@ -29,9 +29,23 @@ export default function PaymentMethods() {
 
   return (
     <Box sx={{ px: 4 }}>
-      <Box sx={{ py: 2, display: "flex", justifyContent: "space-between" }}>
+      <Box
+        sx={{
+          py: 2,
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+        }}
+      >
         <Typography variant="h5">Payment Methods</Typography>
-        <Box sx={{ display: "flex", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
           <Button
             loading={loading}
             onClick={onClick}

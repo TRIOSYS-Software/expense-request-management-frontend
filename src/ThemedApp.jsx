@@ -1,5 +1,10 @@
 import { useState, createContext, useContext, useEffect } from "react";
-import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import {
+  CssBaseline,
+  ThemeProvider,
+  Typography,
+  createTheme,
+} from "@mui/material";
 
 import Login from "./pages/Login";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -24,6 +29,9 @@ import ChangePassword from "./pages/ChangePassword";
 import GLAccounts from "./pages/GLAccounts";
 import PaymentMethods from "./pages/PaymentMethods";
 import Projects from "./pages/Projects";
+import NotFoundPage from "./pages/NotFoundPage";
+import AssignGLAcc from "./pages/AssignGLAcc";
+import UserGLAcc from "./pages/UserGLAcc";
 
 const theme = createTheme({
   palette: {
@@ -39,6 +47,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Template />,
+    errorElement: <NotFoundPage />,
     children: [
       {
         path: "/",
@@ -97,6 +106,22 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <AssignPaymentMethod />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/gl-accounts/assign",
+        element: (
+          <AdminRoute>
+            <UserGLAcc />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/gl-accounts/assign/form",
+        element: (
+          <AdminRoute>
+            <AssignGLAcc />
           </AdminRoute>
         ),
       },
