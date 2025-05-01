@@ -436,3 +436,12 @@ export async function getUsersWithGLAccounts(){
     });
     return res.data;
 }
+
+export async function deleteUser(id){
+    const res = await axios.delete(`${api}/users/${id}`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
