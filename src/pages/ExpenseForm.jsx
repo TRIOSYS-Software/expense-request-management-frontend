@@ -295,7 +295,7 @@ const ExpenseForm = () => {
               })}
               fullWidth
               slotProps={{
-                inputLabel: { shrink: true },
+                inputLabel: { shrink: id ? true : undefined },
                 input: { inputProps: { step: 0.0001 } },
               }}
             />
@@ -305,7 +305,7 @@ const ExpenseForm = () => {
               </Typography>
             )}
           </Grid>
-          <Grid size={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <Controller
               name="gl_account"
               control={control}
@@ -327,7 +327,9 @@ const ExpenseForm = () => {
                     <TextField
                       {...params}
                       label="GL Account"
-                      slotProps={{ inputLabel: { shrink: true } }}
+                      slotProps={{
+                        inputLabel: { shrink: id ? true : undefined },
+                      }}
                       inputRef={ref}
                     />
                   )}
@@ -357,7 +359,7 @@ const ExpenseForm = () => {
               </Typography>
             )}
           </Grid>
-          <Grid size={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <Controller
               name="attachment"
               control={control}
@@ -394,7 +396,7 @@ const ExpenseForm = () => {
               </Typography>
             )}
           </Grid>
-          <Grid size={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel id="payment-label">Payment Method</InputLabel>
               <Controller

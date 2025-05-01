@@ -60,14 +60,14 @@ const Login = () => {
         height: "100vh",
       }}
     >
-      <Paper evaluation={3} sx={{ p: 4 }}>
+      <Paper evaluation={3} sx={{ p: { xs: 2, md: 6 } }}>
         <Typography variant="h4" gutterBottom>
           {" "}
           Expense Request Management{" "}
         </Typography>
         <Box
           component="form"
-          sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2, m: 2 }}
+          sx={{ display: "flex", flexDirection: "column", gap: 2, m: 1 }}
           autoComplete="off"
           noValidate
           onSubmit={handleSubmit(onSubmit)}
