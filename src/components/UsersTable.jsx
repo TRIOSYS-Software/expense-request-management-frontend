@@ -5,11 +5,12 @@ import { Delete, Edit, Search } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
-import { queryClient } from "../ThemedApp";
+import { queryClient, useApp } from "../ThemedApp";
 
 function UsersTable() {
   const navigate = useNavigate();
   const { data, isLoading, isError, error } = useQuery("users", fetchUsers);
+  const { setGlobalMsg, auth } = useApp();
 
   const handleEdit = (id) => {
     navigate(`/users/form/${id}`);
@@ -88,6 +89,7 @@ function UsersTable() {
           <GridActionsCellItem
             icon={<Delete />}
             label="Delete"
+            disabled={auth.id === id}
             onClick={() => handleDelete(id)}
             material={{
               sx: {
