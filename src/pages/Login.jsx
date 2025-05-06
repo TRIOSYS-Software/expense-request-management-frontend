@@ -115,12 +115,11 @@ const Login = () => {
               {errors.root.message}
             </Typography>
           )}
-          {/* <Typography>
-            Don't have an account?{" "}
-            <Link component={RouterLink} to={"/home"}>
-              Signup
+          <Typography>
+            <Link component={RouterLink} to={"/forgot-password"}>
+              Forgot Password?{" "}
             </Link>
-          </Typography> */}
+          </Typography>
         </Box>
       </Paper>
     </Container>

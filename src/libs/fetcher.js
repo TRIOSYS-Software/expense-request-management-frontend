@@ -445,3 +445,18 @@ export async function deleteUser(id){
     });
     return res.data;
 }
+
+export async function forgotPassword(data){
+    const res = await axios.post(`${api}/forgot-password`, data);
+    return res.data;
+}
+
+export async function validatePasswordResetToken(data) {
+    const res = await axios.post(`${api}/validate-password-reset-token`, data);
+    return res.data;
+}
+
+export async function resetPassword(data) {
+    const res = await axios.post(`${api}/reset-password`, data);
+    return res.data;
+}

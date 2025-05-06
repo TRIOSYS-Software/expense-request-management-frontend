@@ -32,6 +32,8 @@ import Projects from "./pages/Projects";
 import NotFoundPage from "./pages/NotFoundPage";
 import AssignGLAcc from "./pages/AssignGLAcc";
 import UserGLAcc from "./pages/UserGLAcc";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const theme = createTheme({
   palette: {
@@ -200,8 +202,12 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/test",
-    element: <Test />,
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
   },
 ]);
 
