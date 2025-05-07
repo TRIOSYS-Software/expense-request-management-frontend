@@ -22,6 +22,7 @@ import {
   fetchExpenseCategories,
   fetchPolicyById,
   fetchRoles,
+  fetchUsers,
   fetchUsersByRole,
   getProjects,
   updatePolicy,
@@ -41,7 +42,7 @@ function PolicyForm() {
   const queries = [
     {
       queryKey: "approvers",
-      queryFn: () => fetchUsersByRole(2),
+      queryFn: () => fetchUsers(),
     },
     {
       queryKey: "departments",
@@ -57,9 +58,20 @@ function PolicyForm() {
     },
   ];
 
+  const [filteredApprovers, setFilteredApprovers] = useState([]);
+
   const results = useQueries(queries);
 
   const [approvers, departments, expenseCategories, projects] = results;
+
+  useEffect(() => {
+    if (approvers.isSuccess) {
+      const filteredApprovers = approvers.data?.filter(
+        (user) => user.role !== 3
+      );
+      setFilteredApprovers(filteredApprovers);
+    }
+  }, [approvers.data]);
 
   const {
     register,
@@ -99,7 +111,7 @@ function PolicyForm() {
       }
       return acc;
     }, []);
-    return approvers.data.filter(
+    return filteredApprovers.filter(
       (option) => !selectedValues.includes(option.id)
     );
   };

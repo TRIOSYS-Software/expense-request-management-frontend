@@ -19,8 +19,10 @@ import {
   Collapse,
   Divider,
   IconButton,
+  Modal,
   Tab,
   Tabs,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -31,10 +33,23 @@ import {
   fetchExpenseAttachment,
   fetchExpenseRequests,
   fetchExpenseRequestsByUserID,
+  updateExpenseApprovals,
 } from "../libs/fetcher";
 import { useMutation, useQuery } from "react-query";
 import { queryClient, useApp } from "../ThemedApp";
 import { useNavigate } from "react-router-dom";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -209,11 +224,57 @@ const ExpenseCard = ({
   approvals,
   is_send_to_sql_acc,
   auth,
+  current_approver_level,
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [action, setAction] = useState("");
+  const [comments, setComments] = useState("");
+  const [selected, setSelected] = useState(null);
   const date = new Date(date_submitted);
   const navigate = useNavigate();
   const { setGlobalMsg } = useApp();
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpen = (approval, action) => {
+    setSelected(approval);
+    setOpen(true);
+    setAction(action);
+  };
+
+  const update = useMutation(
+    async (data) => {
+      const id = selected.id;
+      await updateExpenseApprovals(id, data);
+    },
+    {
+      onSuccess: () => {
+        handleClose();
+        setGlobalMsg("Expense updated successfully!");
+        queryClient.invalidateQueries("expenses");
+      },
+      onError: (error) => {
+        setError("root", { message: error.message });
+        handleClose();
+        setGlobalMsg(error.message);
+      },
+    }
+  );
+
+  const handleAction = () => {
+    const data = {
+      status: action === "approve" ? "approved" : "rejected",
+      comments: comments,
+      approval_date: new Date().toISOString(),
+    };
+    update.mutate(data);
+    handleClose();
+    setComments("");
+  };
+
   const deleteExpense = useMutation(
     async (id) => await deleteExpenseRequest(id),
     {
@@ -385,40 +446,44 @@ const ExpenseCard = ({
               </Button>
             </Box>
           )}
-          {/* <Box sx={{ p: 2, display: "flex", justifyContent: "space-between" }}>
-            <Box>
-              <Typography variant="h6">Attachment</Typography>
-              {attachment ? (
-                <Button
-                  variant="contained"
-                  size="small"
-                  color="primary"
-                  onClick={() => {
-                    handleView(attachment);
-                  }}
-                  download
-                >
-                  View
-                </Button>
-              ) : (
-                <Typography variant="body2">----</Typography>
-              )}
-            </Box>
-            <Box>
-              <Typography variant="h6">Payment Method</Typography>
-              <Typography variant="body2">
-                {payment_methods.description || "----"}
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <Box>
-                <Typography variant="h6">GL Account</Typography>
-                <Typography variant="body2">
-                  {gl_accounts.description || "----"}
-                </Typography>
-              </Box>
-            </Box>
-          </Box> */}
+          {status === "pending" &&
+            (auth.role === 2 || auth.role === 1) &&
+            approvals.map((approval, index) => {
+              if (
+                approval.users.id === auth.id &&
+                approval.status === "pending" &&
+                approval.level === current_approver_level
+              ) {
+                return (
+                  <Box
+                    sx={{ p: 2, display: "flex", justifyContent: "flex-end" }}
+                    key={index}
+                  >
+                    <Button
+                      variant="outlined"
+                      color="success"
+                      size="small"
+                      onClick={() => {
+                        handleOpen(approval, "approve");
+                      }}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      sx={{ ml: 2 }}
+                      variant="outlined"
+                      size="small"
+                      color="error"
+                      onClick={() => {
+                        handleOpen(approval, "reject");
+                      }}
+                    >
+                      Reject
+                    </Button>
+                  </Box>
+                );
+              }
+            })}
           <Divider />
           <Box sx={{ p: 2 }}>
             <Typography variant="h6">Comments</Typography>
@@ -451,6 +516,32 @@ const ExpenseCard = ({
           <Divider />
         </Card>
       </Collapse>
+      <Modal open={open} onClose={handleClose}>
+        <Box sx={style}>
+          <Typography variant="h6">
+            {action === "approve" ? "Approve" : "Reject"} Expense
+          </Typography>
+          <TextField
+            id="outlined-basic"
+            label="Comment"
+            variant="outlined"
+            fullWidth
+            multiline
+            rows={4}
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
+          />
+          <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+            <Button
+              variant="contained"
+              color={action === "approve" ? "success" : "error"}
+              onClick={handleAction}
+            >
+              Confirm
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 };

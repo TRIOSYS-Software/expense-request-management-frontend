@@ -5,12 +5,10 @@ import {
   CircularProgress,
   Typography,
 } from "@mui/material";
-import ExpenseTable from "../components/ExpenseTable";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ExpenseRequestList from "../components/ExpenseRequestList";
 import { useApp } from "../ThemedApp";
-import ApproverExpenseRequestList from "../components/ApproverExpenseRequestList";
 import {
   fetchExpenseRequests,
   fetchExpenseRequestsByApproverID,
@@ -171,11 +169,12 @@ export default function Expenses() {
           </Box>
         )}
       </Box>
-      {auth.role === 2 ? (
-        <ApproverExpenseRequestList data={data} />
+      <ExpenseRequestList data={data} />
+      {/* {auth.role === 2 ? (
+        <ExpenseRequestList2 data={data} />
       ) : (
         <ExpenseRequestList data={data} />
-      )}
+      )} */}
     </Box>
   );
 }
