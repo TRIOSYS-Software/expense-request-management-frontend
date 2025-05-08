@@ -34,6 +34,8 @@ import AssignGLAcc from "./pages/AssignGLAcc";
 import UserGLAcc from "./pages/UserGLAcc";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import UserProject from "./pages/UserProject";
+import AssignProject from "./pages/AssignProject";
 
 const theme = createTheme({
   palette: {
@@ -112,6 +114,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/payment-methods/assign/form/:id",
+        element: (
+          <AdminRoute>
+            <AssignPaymentMethod />
+          </AdminRoute>
+        ),
+      },
+      {
         path: "/gl-accounts/assign",
         element: (
           <AdminRoute>
@@ -124,6 +134,38 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <AssignGLAcc />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/gl-accounts/assign/form/:id",
+        element: (
+          <AdminRoute>
+            <AssignGLAcc />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/projects/assign",
+        element: (
+          <AdminRoute>
+            <UserProject />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/projects/assign/form",
+        element: (
+          <AdminRoute>
+            <AssignProject />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/projects/assign/form/:id",
+        element: (
+          <AdminRoute>
+            <AssignProject />
           </AdminRoute>
         ),
       },

@@ -11,25 +11,30 @@ import {
   Select,
   TextField,
   Typography,
+  Alert,
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import {
   fetchUsersByRole,
   getGLAccounts,
+  getUserGLAccounts,
   setUserGLAccounts,
 } from "../libs/fetcher";
-import { useMutation, useQueries } from "react-query";
+import { useMutation, useQueries, useQuery } from "react-query";
 import { queryClient, useApp } from "../ThemedApp";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function AssignGLAcc() {
-  const { setGlobalMsg } = useApp();
   const navigate = useNavigate();
+  const { id } = useParams();
+  const { setGlobalMsg } = useApp();
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors },
+    setValue,
   } = useForm({
     defaultValues: {
       user: "",
@@ -51,11 +56,36 @@ export default function AssignGLAcc() {
 
   const [users, glaccounts] = results;
 
-  const create = useMutation(async (data) => await setUserGLAccounts(data), {
+  // If editing, fetch user's current GL accounts
+  const { data: userGLAccounts } = useQuery(
+    ["user-gl-accounts", id],
+    () => getUserGLAccounts(id),
+    {
+      enabled: !!id,
+    }
+  );
+
+  useEffect(() => {
+    if (id) {
+      setValue("user", id);
+      if (userGLAccounts) {
+        setValue(
+          "gl_accounts",
+          userGLAccounts.map((acc) => acc.dockey)
+        );
+      }
+    }
+  }, [id, userGLAccounts, setValue]);
+
+  const create = useMutation(setUserGLAccounts, {
     onSuccess: () => {
-      queryClient.invalidateQueries("users");
       setGlobalMsg("GL Accounts assigned successfully!");
       reset();
+      queryClient.invalidateQueries(["users-gl-accounts"]);
+      if (id) {
+        queryClient.invalidateQueries(["user-gl-accounts", id]);
+      }
+      navigate(-1);
     },
     onError: (error) => {
       setGlobalMsg(error.response.data.message, "error");
@@ -95,7 +125,9 @@ export default function AssignGLAcc() {
       sx={{ maxWidth: "md", mx: "auto" }}
     >
       <Paper elevation={24} sx={{ p: 2, my: 2 }}>
-        <Typography variant="h5">AssignGLAcc</Typography>
+        <Typography variant="h5">
+          {id ? "Edit User GL Accounts" : "Assign GL Accounts"}
+        </Typography>
         <Grid2 container spacing={2} sx={{ my: 2 }}>
           <Grid2 size={12}>
             <FormControl variant="outlined" fullWidth>
@@ -112,6 +144,7 @@ export default function AssignGLAcc() {
                     labelId="user-select-label"
                     id="user-select"
                     label="User"
+                    disabled={!!id}
                   >
                     <MenuItem value={""}>None</MenuItem>
                     {users.data.map((user) => (
@@ -157,9 +190,9 @@ export default function AssignGLAcc() {
                 />
               )}
             />
-            {errors.gl_account && (
+            {errors.gl_accounts && (
               <Typography variant="body2" color="error">
-                {errors.gl_account.message}
+                {errors.gl_accounts.message}
               </Typography>
             )}
           </Grid2>
@@ -175,7 +208,7 @@ export default function AssignGLAcc() {
             Back
           </Button>
           <Button variant="contained" type="submit">
-            Submit
+            {id ? "Update" : "Submit"}
           </Button>
         </Box>
       </Paper>

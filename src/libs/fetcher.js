@@ -437,6 +437,33 @@ export async function getUsersWithGLAccounts(){
     return res.data;
 }
 
+export async function setUserProjects(data){
+    const res = await axios.post(`${api}/users/set-projects`, data, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function getUserProjects(id){
+    const res = await axios.get(`${api}/users/${id}/projects`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
+export async function getUsersWithProjects(){
+    const res = await axios.get(`${api}/users/projects`, {
+        headers: {
+            'Authorization': `${getToken()}`
+        }
+    });
+    return res.data;
+}
+
 export async function deleteUser(id){
     const res = await axios.delete(`${api}/users/${id}`, {
         headers: {

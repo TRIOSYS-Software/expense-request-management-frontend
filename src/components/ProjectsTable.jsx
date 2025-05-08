@@ -12,9 +12,20 @@ import {
 } from "@mui/material";
 import { getProjects } from "../libs/fetcher";
 import { useQuery } from "react-query";
+import { DataGrid } from "@mui/x-data-grid";
 
 export default function ProjectsTable() {
   const { data, isLoading, isError, error } = useQuery("projects", getProjects);
+  const column = [
+    { field: "code", headerName: "Code", flex: 1 },
+    { field: "description", headerName: "Description", flex: 2 },
+    {
+      field: "description2",
+      headerName: "Description2",
+      flex: 2,
+      valueGetter: (value, row) => row.description2 || "N/A",
+    },
+  ];
 
   if (isLoading) {
     return (
@@ -34,7 +45,7 @@ export default function ProjectsTable() {
 
   return (
     <Paper sx={{ width: "100%" }}>
-      <TableContainer>
+      {/* <TableContainer>
         <Table>
           <TableHead>
             <TableRow>
@@ -53,7 +64,8 @@ export default function ProjectsTable() {
             ))}
           </TableBody>
         </Table>
-      </TableContainer>
+      </TableContainer> */}
+      <DataGrid getRowId={(row) => row.code} rows={data} columns={column} />
     </Paper>
   );
 }

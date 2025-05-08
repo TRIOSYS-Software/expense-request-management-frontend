@@ -1,30 +1,46 @@
-import { Add, ArrowBackIos } from "@mui/icons-material";
+import { Add, ArrowBackIos, Edit, Delete } from "@mui/icons-material";
 import {
   Alert,
   Box,
   Button,
-  Chip,
   CircularProgress,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  IconButton,
   Typography,
 } from "@mui/material";
-import { useQuery } from "react-query";
-import { getUsersWithPaymentMethods } from "../libs/fetcher";
+import { useMutation, useQuery } from "react-query";
+import { getUsersWithPaymentMethods, setUserPaymentMethod } from "../libs/fetcher";
 import { useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
+import { queryClient, useApp } from "../ThemedApp";
 
 export default function UserPaymentMethod() {
   const navigate = useNavigate();
+  const { setGlobalMsg } = useApp();
   const { data, isLoading, isError, error } = useQuery(
     "users-payment-methods",
     getUsersWithPaymentMethods
   );
+
+  const updateMutation = useMutation(setUserPaymentMethod, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["users-payment-methods"]);
+      setGlobalMsg("Payment methods updated successfully!");
+    },
+    onError: (error) => {
+      setGlobalMsg(error.response.data.message, "error");
+    },
+  });
+
+  const handleEdit = (user) => {
+    navigate(`/payment-methods/assign/form/${user.id}`);
+  };
+
+  const handleRemove = (user) => {
+    updateMutation.mutate({
+      user_id: user.id,
+      payment_methods: [], // Empty array to remove all payment methods
+    });
+  };
 
   if (isLoading) {
     return (
@@ -60,6 +76,30 @@ export default function UserPaymentMethod() {
         );
       },
     },
+    {
+      field: "actions",
+      headerName: "Actions",
+      flex: 1,
+      sortable: false,
+      renderCell: (params) => (
+        <Box>
+          <IconButton
+            color="primary"
+            onClick={() => handleEdit(params.row)}
+            size="small"
+          >
+            <Edit />
+          </IconButton>
+          <IconButton
+            color="error"
+            onClick={() => handleRemove(params.row)}
+            size="small"
+          >
+            <Delete />
+          </IconButton>
+        </Box>
+      ),
+    },
   ];
 
   return (
@@ -89,37 +129,6 @@ export default function UserPaymentMethod() {
         </Box>
       </Box>
       <Box>
-        {/* <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ minWidth: 200 }}>Users</TableCell>
-                <TableCell>Payment Methods</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data?.map((user) => (
-                <TableRow
-                  key={user.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {user.name}
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                      {user.payment_methods.map((method) => (
-                        <Chip
-                          label={`${method.code} (${method.description})`}
-                        />
-                      ))}
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer> */}
         <DataGrid
           rows={data}
           columns={columns}

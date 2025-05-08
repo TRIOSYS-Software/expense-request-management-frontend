@@ -17,29 +17,30 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import {
   fetchUsersByRole,
-  getPaymentMethods,
-  getUserPaymentMethods,
-  setUserPaymentMethod,
+  getProjects,
+  getUserProjects,
+  setUserProjects,
 } from "../libs/fetcher";
 import { useMutation, useQueries, useQuery } from "react-query";
 import { queryClient, useApp } from "../ThemedApp";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 
-export default function AssignPaymentMethod() {
+export default function AssignProject() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { setGlobalMsg } = useApp();
   const {
-    control,
+    register,
     handleSubmit,
-    reset,
+    control,
     formState: { errors },
+    reset,
     setValue,
   } = useForm({
     defaultValues: {
       user: "",
-      payment_methods: [],
+      projects: [],
     },
   });
 
@@ -49,18 +50,18 @@ export default function AssignPaymentMethod() {
       queryFn: () => fetchUsersByRole(3),
     },
     {
-      queryKey: "payment-methods",
-      queryFn: () => getPaymentMethods(),
+      queryKey: "projects",
+      queryFn: () => getProjects(),
     },
   ];
 
   const results = useQueries(queries);
-  const [users, paymentMethods] = results;
+  const [users, projects] = results;
 
-  // If editing, fetch user's current payment methods
-  const { data: userPaymentMethods } = useQuery(
-    ["user-payment-methods", id],
-    () => getUserPaymentMethods(id),
+  // If editing, fetch user's current projects
+  const { data: userProjects } = useQuery(
+    ["user-projects", id],
+    () => getUserProjects(id),
     {
       enabled: !!id,
     }
@@ -69,22 +70,22 @@ export default function AssignPaymentMethod() {
   useEffect(() => {
     if (id) {
       setValue("user", id);
-      if (userPaymentMethods) {
+      if (userProjects) {
         setValue(
-          "payment_methods",
-          userPaymentMethods.map((pm) => pm.code)
+          "projects",
+          userProjects.map((p) => p.code)
         );
       }
     }
-  }, [id, userPaymentMethods, setValue]);
+  }, [id, userProjects, setValue]);
 
-  const create = useMutation(setUserPaymentMethod, {
+  const create = useMutation(setUserProjects, {
     onSuccess: () => {
-      setGlobalMsg("Payment methods assigned successfully!");
+      setGlobalMsg("Projects assigned successfully!");
       reset();
-      queryClient.invalidateQueries(["users-payment-methods"]);
+      queryClient.invalidateQueries(["users-projects"]);
       if (id) {
-        queryClient.invalidateQueries(["user-payment-methods", id]);
+        queryClient.invalidateQueries(["user-projects", id]);
       }
       navigate(-1);
     },
@@ -96,12 +97,12 @@ export default function AssignPaymentMethod() {
   const onSubmit = (data) => {
     const request = {
       user_id: parseInt(data.user),
-      payment_methods: data.payment_methods,
+      projects: data.projects,
     };
     create.mutate(request);
   };
 
-  if (users.isLoading || paymentMethods.isLoading) {
+  if (users.isLoading || projects.isLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
         <CircularProgress />
@@ -109,11 +110,11 @@ export default function AssignPaymentMethod() {
     );
   }
 
-  if (users.isError || paymentMethods.isError) {
+  if (users.isError || projects.isError) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", height: "50vh" }}>
         <Alert severity="error">
-          {users.error.message || paymentMethods.error.message}
+          {users.error.message || projects.error.message}
         </Alert>
       </Box>
     );
@@ -122,12 +123,12 @@ export default function AssignPaymentMethod() {
   return (
     <Box
       component={"form"}
-      onSubmit={handleSubmit(onSubmit)}
       sx={{ maxWidth: "md", mx: "auto" }}
+      onSubmit={handleSubmit(onSubmit)}
     >
       <Paper elevation={24} sx={{ p: 2, my: 2 }}>
         <Typography variant="h5">
-          {id ? "Edit User Payment Methods" : "Assign Payment Methods"}
+          {id ? "Edit User Projects" : "Assign Projects"}
         </Typography>
         <Grid2 container spacing={2} sx={{ my: 2 }}>
           <Grid2 size={12}>
@@ -163,23 +164,21 @@ export default function AssignPaymentMethod() {
           </Grid2>
           <Grid2 size={12}>
             <FormControl variant="outlined" fullWidth>
-              <InputLabel id="payment-method-select-label">
-                Payment Method
-              </InputLabel>
+              <InputLabel id="project-select-label">Projects</InputLabel>
               <Controller
-                name="payment_methods"
+                name="projects"
                 control={control}
                 rules={{
-                  required: "Payment Method is required!",
+                  required: "Projects are required!",
                 }}
                 render={({ field, fieldState: { error } }) => (
                   <Select
                     {...field}
-                    labelId="payment-method-select-label"
-                    id="payment-method-select"
-                    label="Payment Method"
+                    labelId="project-select-label"
+                    id="project-select"
+                    label="Projects"
                     multiple
-                    input={<OutlinedInput label="Payment Method" />}
+                    input={<OutlinedInput label="Projects" />}
                     renderValue={(selected) => (
                       <Box
                         sx={{
@@ -194,22 +193,17 @@ export default function AssignPaymentMethod() {
                       </Box>
                     )}
                   >
-                    {paymentMethods.data.map((paymentMethod) => (
-                      <MenuItem
-                        key={paymentMethod.code}
-                        value={paymentMethod.code}
-                      >
-                        {paymentMethod.description}
+                    {projects.data.map((project) => (
+                      <MenuItem key={project.code} value={project.code}>
+                        {project.description}
                       </MenuItem>
                     ))}
                   </Select>
                 )}
               />
             </FormControl>
-            {errors.payment_methods && (
-              <Typography color="error">
-                {errors.payment_methods.message}
-              </Typography>
+            {errors.projects && (
+              <Typography color="error">{errors.projects.message}</Typography>
             )}
           </Grid2>
         </Grid2>

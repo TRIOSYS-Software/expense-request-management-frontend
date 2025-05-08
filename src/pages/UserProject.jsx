@@ -8,23 +8,24 @@ import {
   Typography,
 } from "@mui/material";
 import { useMutation, useQuery } from "react-query";
-import { getUsersWithGLAccounts, setUserGLAccounts } from "../libs/fetcher";
+import { getUsersWithProjects, setUserProjects } from "../libs/fetcher";
 import { useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
 import { queryClient, useApp } from "../ThemedApp";
+import { useState } from "react";
 
-export default function UserGLAcc() {
+export default function UserProject() {
   const navigate = useNavigate();
   const { setGlobalMsg } = useApp();
   const { data, isLoading, isError, error } = useQuery(
-    "users-gl-accounts",
-    () => getUsersWithGLAccounts()
+    "users-projects",
+    getUsersWithProjects
   );
 
-  const updateMutation = useMutation(setUserGLAccounts, {
+  const updateMutation = useMutation(setUserProjects, {
     onSuccess: () => {
-      queryClient.invalidateQueries(["users-gl-accounts"]);
-      setGlobalMsg("GL Accounts updated successfully!");
+      queryClient.invalidateQueries(["users-projects"]);
+      setGlobalMsg("Projects updated successfully!");
     },
     onError: (error) => {
       setGlobalMsg(error.response.data.message, "error");
@@ -32,13 +33,13 @@ export default function UserGLAcc() {
   });
 
   const handleEdit = (user) => {
-    navigate(`/gl-accounts/assign/form/${user.id}`);
+    navigate(`/projects/assign/form/${user.id}`);
   };
 
   const handleRemove = (user) => {
     updateMutation.mutate({
       user_id: user.id,
-      gl_accounts: [], // Empty array to remove all GL accounts
+      projects: [], // Empty array to remove all projects
     });
   };
 
@@ -61,12 +62,11 @@ export default function UserGLAcc() {
   const columns = [
     { field: "name", headerName: "Name", flex: 1 },
     {
-      field: "gl_accounts",
-      headerName: "GL Accounts",
+      field: "projects",
+      headerName: "Projects",
       flex: 2,
-      valueGetter: (value, row) => {
-        return value.map((v) => v.code + " - " + v.description);
-      },
+      valueGetter: (value, row) =>
+        value.map((v) => `${v.code} (${v.description})`),
       renderCell: (params) => {
         return (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -106,7 +106,7 @@ export default function UserGLAcc() {
   return (
     <Box sx={{ px: 4 }}>
       <Box sx={{ py: 2, display: "flex", justifyContent: "space-between" }}>
-        <Typography variant="h5">Assign GL Accounts</Typography>
+        <Typography variant="h5">Assign Projects</Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
           <Button
             variant="contained"
@@ -122,25 +122,27 @@ export default function UserGLAcc() {
             startIcon={<Add />}
             sx={{ display: "flex" }}
             onClick={() => {
-              navigate("/gl-accounts/assign/form");
+              navigate("/projects/assign/form");
             }}
           >
             Assign
           </Button>
         </Box>
       </Box>
-      <DataGrid
-        rows={data}
-        columns={columns}
-        pageSize={5}
-        rowsPerPageOptions={[5]}
-        getRowHeight={() => "auto"}
-        sx={{
-          "& .MuiDataGrid-cell": {
-            py: 1,
-          },
-        }}
-      />
+      <Box>
+        <DataGrid
+          rows={data}
+          columns={columns}
+          pageSize={5}
+          rowsPerPageOptions={[5]}
+          getRowHeight={() => "auto"}
+          sx={{
+            "& .MuiDataGrid-cell": {
+              py: 1,
+            },
+          }}
+        />
+      </Box>
     </Box>
   );
 }
