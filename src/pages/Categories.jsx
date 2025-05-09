@@ -3,7 +3,7 @@ import { Box, Button, Modal, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import CategoriesTable from "../components/CategoriesTable";
 import { useMutation } from "react-query";
-import { createExpenseCategory } from "../libs/fetcher";
+import { createExpenseCategory } from "../libs";
 import { queryClient, useApp } from "../ThemedApp";
 
 const style = {

@@ -6,7 +6,7 @@ import {
   Grid2,
   Typography,
 } from "@mui/material";
-import { fetchExpenseRequestsSummary } from "../libs/fetcher";
+import { fetchExpenseRequestsSummary } from "../libs";
 import { useQuery } from "react-query";
 import { Chart, DoughnutController, registerables } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
@@ -21,6 +21,16 @@ export default function Home() {
     ["expense-request-summary", auth],
     async () => await fetchExpenseRequestsSummary({}, auth)
   );
+
+    const { data: totalApproved, isLoading: totalApprovedLoading, isError: istotalApprovedError, error: totalApprovedError } = useQuery(
+      ["expense-request-total-approved", auth],
+      async () => await fetchExpenseRequestsSummary({status: "approved"}, auth)
+    );
+
+    const { data: totalRejected, isLoading: totalRejectedLoading, isError: istotalRejectedError, error: totalRejectedError } = useQuery(
+      ["expense-request-total-rejected", auth],
+      async () => await fetchExpenseRequestsSummary({status: "rejected"}, auth)
+    );
 
   const chartData = {
     labels: ["Approved", "Rejected", "Pending"],
@@ -74,6 +84,39 @@ export default function Home() {
             <Typography variant="h4">{data?.rejected}</Typography>
             <Typography variant="body2">
               Total Rejected Expense Requests
+            </Typography>
+          </Card>
+        </Grid2>
+        <Grid2 size={{ xs: 12, md: 4 }}>
+        <Card sx={{ p: 2 }}>
+            <Typography variant="h4">{data?.total_amount.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 4,
+              })}</Typography>
+            <Typography variant="body2">
+              Total Requested Amount
+            </Typography>
+          </Card>
+        </Grid2>
+        <Grid2 size={{ xs: 12, md: 4 }}>
+        <Card sx={{ p: 2 }}>
+            <Typography variant="h4">{totalApproved?.total_amount.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 4,
+              })}</Typography>
+            <Typography variant="body2">
+              Total Approved Amount
+            </Typography>
+          </Card>
+        </Grid2>
+        <Grid2 size={{ xs: 12, md: 4 }}>
+        <Card sx={{ p: 2 }}>
+            <Typography variant="h4">{totalRejected?.total_amount.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 4,
+              })}</Typography>
+            <Typography variant="body2">
+              Total Reject Amount
             </Typography>
           </Card>
         </Grid2>

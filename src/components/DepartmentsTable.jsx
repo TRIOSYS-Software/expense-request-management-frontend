@@ -19,7 +19,7 @@ import {
   fetchDeparments,
   deleteDepartment,
   updateDepartment,
-} from "../libs/fetcher";
+} from "../libs";
 import { useMutation, useQuery } from "react-query";
 import { Delete, Edit } from "@mui/icons-material";
 import { useState } from "react";

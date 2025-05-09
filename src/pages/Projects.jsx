@@ -2,7 +2,7 @@ import { Add, Sync } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import { useMutation } from "react-query";
 import { queryClient, useApp } from "../ThemedApp";
-import { syncProjects } from "../libs/fetcher";
+import { syncProjects } from "../libs";
 import { useState } from "react";
 import ProjectsTable from "../components/ProjectsTable";
 import { useNavigate } from "react-router-dom";

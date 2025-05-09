@@ -10,7 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { getGLAccounts } from "../libs/fetcher";
+import { getGLAccounts } from "../libs";
 import { useQuery } from "react-query";
 import { DataGrid } from "@mui/x-data-grid";
 

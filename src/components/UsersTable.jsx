@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Alert } from "@mui/material";
 import { useMutation, useQuery } from "react-query";
-import { deleteUser, fetchUsers } from "../libs/fetcher";
+import { deleteUser, fetchUsers } from "../libs";
 import { Delete, Edit, Search } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";

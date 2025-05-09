@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { resetPassword, validatePasswordResetToken } from "../libs/fetcher";
+import { resetPassword, validatePasswordResetToken } from "../libs";
 import {
   Alert,
   Box,

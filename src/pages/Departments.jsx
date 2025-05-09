@@ -4,7 +4,7 @@ import { useState } from "react";
 import DepartmentsTable from "../components/DepartmentsTable";
 import { queryClient, useApp } from "../ThemedApp";
 import { useMutation } from "react-query";
-import { createDepartment } from "../libs/fetcher";
+import { createDepartment } from "../libs";
 
 const style = {
   position: "absolute",

@@ -21,7 +21,7 @@ import {
   createUser,
   fetchUserById,
   updateUser,
-} from "../libs/fetcher";
+} from "../libs";
 import { useApp } from "../ThemedApp";
 import { data, useNavigate, useParams } from "react-router-dom";
 import { use, useEffect } from "react";

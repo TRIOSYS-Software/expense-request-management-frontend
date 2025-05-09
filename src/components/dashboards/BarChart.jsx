@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { fetchExpenseRequestsSummary } from "../../libs/fetcher";
+import { fetchExpenseRequestsSummary } from "../../libs"
 import { Bar, Line } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { format, eachDayOfInterval } from "date-fns";
@@ -9,7 +9,7 @@ export default function BarChart() {
   const { auth } = useApp();
   const currentDate = new Date();
   const previousDate = new Date(
-    currentDate.getTime() - 14 * 24 * 60 * 60 * 1000
+    currentDate.getTime() - 7 * 24 * 60 * 60 * 1000
   );
 
   const startDate = previousDate.toISOString().split("T")[0];

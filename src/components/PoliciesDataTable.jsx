@@ -1,7 +1,7 @@
 import { Box, Paper, Typography } from "@mui/material";
 import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 import { useMutation, useQuery } from "react-query";
-import { deletePolicy, fetchPolicies } from "../libs/fetcher";
+import { deletePolicy, fetchPolicies } from "../libs";
 import { Delete, Edit } from "@mui/icons-material";
 import { queryClient, useApp } from "../ThemedApp";
 import { useNavigate } from "react-router-dom";

@@ -20,7 +20,7 @@ import {
   deleteExpenseCategory,
   fetchExpenseCategories,
   updateExpenseCategory,
-} from "../libs/fetcher";
+} from "../libs";
 import { Delete, Edit } from "@mui/icons-material";
 import { queryClient, useApp } from "../ThemedApp";
 import { useState } from "react";

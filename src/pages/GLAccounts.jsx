@@ -3,7 +3,7 @@ import { Box, Button, Typography } from "@mui/material";
 import GLAccountsTable from "../components/GLAccountsTable";
 import { useMutation } from "react-query";
 import { queryClient, useApp } from "../ThemedApp";
-import { syncGLAccounts } from "../libs/fetcher";
+import { syncGLAccounts } from "../libs";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

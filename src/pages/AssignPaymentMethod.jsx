@@ -16,11 +16,11 @@ import {
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import {
-  fetchUsersByRole,
+  getUsers,
   getPaymentMethods,
   getUserPaymentMethods,
   setUserPaymentMethod,
-} from "../libs/fetcher";
+} from "../libs";
 import { useMutation, useQueries, useQuery } from "react-query";
 import { queryClient, useApp } from "../ThemedApp";
 import { useNavigate, useParams } from "react-router-dom";
@@ -46,7 +46,7 @@ export default function AssignPaymentMethod() {
   const queries = [
     {
       queryKey: "users",
-      queryFn: () => fetchUsersByRole(3),
+      queryFn: () => getUsers(3),
     },
     {
       queryKey: "payment-methods",

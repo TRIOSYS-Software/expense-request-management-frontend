@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useMutation, useQuery } from "react-query";
-import { getUsersWithProjects, setUserProjects } from "../libs/fetcher";
+import { getUsersWithProjects, setUserProjects } from "../libs";
 import { useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
 import { queryClient, useApp } from "../ThemedApp";
@@ -70,8 +70,10 @@ export default function UserProject() {
       renderCell: (params) => {
         return (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {params.value.map((v) => (
-              <Typography variant="body2">{v}</Typography>
+            {params.value.map((v, index) => (
+              <Typography key={`${params.row.id}-${index}`} variant="body2">
+                {v}
+              </Typography>
             ))}
           </Box>
         );
@@ -134,6 +136,7 @@ export default function UserProject() {
           rows={data}
           columns={columns}
           pageSize={5}
+          // getRowId={(row) => row.id}
           rowsPerPageOptions={[5]}
           getRowHeight={() => "auto"}
           sx={{

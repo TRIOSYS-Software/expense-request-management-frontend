@@ -10,7 +10,7 @@ import { useApp } from "../ThemedApp";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "react-query";
-import { changePassword } from "../libs/fetcher";
+import { changePassword } from "../libs";
 
 export default function ChangePassword() {
   const { auth, setGlobalMsg } = useApp();

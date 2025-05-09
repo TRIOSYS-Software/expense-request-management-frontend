@@ -2,7 +2,7 @@ import { Add, Sync } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import { useMutation } from "react-query";
 import { queryClient, useApp } from "../ThemedApp";
-import { syncPaymentMethods } from "../libs/fetcher";
+import { syncPaymentMethods } from "../libs";
 import { useState } from "react";
 import PaymentMethodsTable from "../components/PaymentMethodsTable";
 import { useNavigate } from "react-router-dom";

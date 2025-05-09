@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { forgotPassword } from "../libs/fetcher";
+import { forgotPassword } from "../libs";
 import { useApp } from "../ThemedApp";
 import { useState } from "react";
 

@@ -16,11 +16,11 @@ import {
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import {
-  fetchUsersByRole,
+  getUsers,
   getProjects,
   getUserProjects,
-  setUserProjects,
-} from "../libs/fetcher";
+  setUserProjects
+} from "../libs";
 import { useMutation, useQueries, useQuery } from "react-query";
 import { queryClient, useApp } from "../ThemedApp";
 import { useNavigate, useParams } from "react-router-dom";
@@ -47,7 +47,7 @@ export default function AssignProject() {
   const queries = [
     {
       queryKey: "users",
-      queryFn: () => fetchUsersByRole(3),
+      queryFn: () => getUsers(3),
     },
     {
       queryKey: "projects",

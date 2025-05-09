@@ -31,10 +31,8 @@ import { useState } from "react";
 import {
   deleteExpenseRequest,
   fetchExpenseAttachment,
-  fetchExpenseRequests,
-  fetchExpenseRequestsByUserID,
   updateExpenseApprovals,
-} from "../libs/fetcher";
+} from "../libs";
 import { useMutation, useQuery } from "react-query";
 import { queryClient, useApp } from "../ThemedApp";
 import { useNavigate } from "react-router-dom";
@@ -484,34 +482,79 @@ const ExpenseCard = ({
                 );
               }
             })}
+            {status === "approved" && auth.role === 1 && (
+              <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end" }}>
+                <Button variant="outlined" color="primary" size="small" onClick={() => {
+                  navigate(`/expenses/${id}/send-to-sqlacc`)
+                }}>Send to SQL Acc</Button>
+              </Box>
+            )}
           <Divider />
           <Box sx={{ p: 2 }}>
-            <Typography variant="h6">Comments</Typography>
-            {approvals.map((approval) => (
-              <Box
-                key={approval.id}
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: 2,
-                }}
-              >
-                <Typography variant="body2">
-                  {approval.comments || "no comment yet"}
-                </Typography>
-                <Typography variant="body2">
-                  {approval.users?.name || "----"}{" "}
-                  {approval.status === "pending" ? (
-                    <Pending color="warning" />
-                  ) : approval.status === "approved" ? (
-                    <ThumbUp color="success" />
-                  ) : (
-                    <ThumbDown color="error" />
-                  )}
-                </Typography>
-              </Box>
-            ))}
+            <Typography variant="h6" sx={{ mb: 2 }}>Approval Status</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {approvals.map((approval, index) => (
+                <Box
+                  key={approval.id}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    justifyContent: 'space-between',
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    gap: 1,
+                    // p: 2,
+                    // bgcolor: approval.status === 'pending' ? 'action.hover' : 'transparent',
+                    // borderRadius: 1,
+                    // border: '1px solid',
+                    // borderColor: 'divider',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="subtitle2">Level {approval.level}:</Typography>
+                      <Typography variant="body2">{approval.users?.name || "----"}</Typography>
+                    </Box>
+                    {approval.comments && (
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{ 
+                          mt: 1,
+                          fontStyle: 'italic',
+                          maxWidth: { xs: '100%', sm: '400px' }
+                        }}
+                      >
+                        "{approval.comments}"
+                      </Typography>
+                    )}
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {approval.status === "pending" ? (
+                      <Chip
+                        icon={<Pending />}
+                        label="Pending"
+                        color="warning"
+                        size="small"
+                      />
+                    ) : approval.status === "approved" ? (
+                      <Chip
+                        icon={<ThumbUp />}
+                        label="Approved"
+                        color="success"
+                        size="small"
+                      />
+                    ) : (
+                      <Chip
+                        icon={<ThumbDown />}
+                        label="Rejected"
+                        color="error"
+                        size="small"
+                      />
+                    )}
+                  </Box>
+                </Box>
+              ))}
+            </Box>
           </Box>
           <Divider />
         </Card>

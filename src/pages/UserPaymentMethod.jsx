@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useMutation, useQuery } from "react-query";
-import { getUsersWithPaymentMethods, setUserPaymentMethod } from "../libs/fetcher";
+import { getUsersWithPaymentMethods, setUserPaymentMethod } from "../libs";
 import { useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
 import { queryClient, useApp } from "../ThemedApp";
@@ -69,8 +69,8 @@ export default function UserPaymentMethod() {
       renderCell: (params) => {
         return (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {params.value.map((v) => (
-              <Typography variant="body2">{v}</Typography>
+            {params.value.map((v, index) => (
+              <Typography key={`${params.row.id}-${index}`} variant="body2" >{v}</Typography>
             ))}
           </Box>
         );

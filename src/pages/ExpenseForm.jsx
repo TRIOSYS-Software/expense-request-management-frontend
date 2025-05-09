@@ -26,8 +26,9 @@ import {
   getProjects,
   getUserGLAccounts,
   getUserPaymentMethods,
+  getUserProjects,
   updateExpense,
-} from "../libs/fetcher";
+} from "../libs";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { useApp } from "../ThemedApp";
@@ -67,6 +68,10 @@ const ExpenseForm = () => {
       queryKey: "user-gl-accounts",
       queryFn: () => getUserGLAccounts(auth.id),
     },
+    {
+      queryKey: "user-projects",
+      queryFn: () => getUserProjects(auth.id),
+    }
   ];
 
   const results = useQueries(queries);
@@ -79,6 +84,7 @@ const ExpenseForm = () => {
     glAccounts,
     userPaymentMethods,
     userGLAccounts,
+    userProjects,
   ] = results;
 
   // const approvers = users.data?.filter((user) => user.roles.id === 2);
@@ -122,6 +128,12 @@ const ExpenseForm = () => {
   const filteredGLAccounts = glAccounts.data?.filter((account) => {
     return userGLAccounts.data?.some((userAccount) => {
       return userAccount.code === account.code;
+    });
+  });
+
+  const filteredProjects = projects.data?.filter((project) => {
+    return userProjects.data?.some((userProject) => {
+      return userProject.code === project.code;
     });
   });
 
@@ -269,7 +281,7 @@ const ExpenseForm = () => {
                 render={({ field }) => (
                   <Select labelId="project-label" label="Project" {...field}>
                     <MenuItem value="">Choose an option</MenuItem>
-                    {projects.data.map((option) => (
+                    {filteredProjects.map((option) => (
                       <MenuItem key={option.code} value={option.code}>
                         {option.description}
                       </MenuItem>

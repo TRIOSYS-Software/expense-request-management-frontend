@@ -10,7 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { getPaymentMethods } from "../libs/fetcher";
+import { getPaymentMethods } from "../libs";
 import { useQuery } from "react-query";
 import { DataGrid } from "@mui/x-data-grid";
 

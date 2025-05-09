@@ -12,7 +12,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useApp } from "../ThemedApp";
 import { useMutation } from "react-query";
-import { postLogin } from "../libs/fetcher";
+import { postLogin } from "../libs";
 
 const Login = () => {
   const { setAuth } = useApp();
