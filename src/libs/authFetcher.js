@@ -29,7 +29,7 @@ export async function forgotPassword(data) {
 }
 
 export async function validatePasswordResetToken(data) {
-    const res = await axios.post(`${api}/validate-reset-token`, data);
+    const res = await axios.post(`${api}/validate-password-reset-token`, data);
     return res.data;
 }
 
