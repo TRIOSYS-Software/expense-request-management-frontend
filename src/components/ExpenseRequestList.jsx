@@ -307,62 +307,82 @@ const ExpenseCard = ({
   return (
     <Box sx={{ mt: 2 }}>
       <Card
-        sx={{
-          p: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 2,
-        }}
         onClick={() => {
           setExpanded(!expanded);
         }}
       >
         <Box
           sx={{
+            p: 2,
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
+            flexWrap: "wrap",
             gap: 2,
           }}
         >
-          <Box>
-            <Typography variant="body1">ID - {id}</Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            <Box>
+              <Typography variant="body1">ID - {id}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="h6">{user?.name || "-"}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="h6">
+                {amount.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 4,
+                })}
+              </Typography>
+            </Box>
           </Box>
-          <Box>
-            <Typography variant="h6">{user?.name || "-"}</Typography>
-          </Box>
-          <Box>
-            <Typography variant="h6">
-              {amount.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 4,
-              })}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Typography variant="body2">
+              Submitted Date: {date.toLocaleDateString()}
             </Typography>
+            {is_send_to_sql_acc && (
+              <Tooltip title="Sent to SQLACC">
+                <Check color="success" />
+              </Tooltip>
+            )}
+            {status === "approved" &&
+              is_send_to_sql_acc === false &&
+              auth.role === 1 && (
+                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                  <Button
+                    variant="outlined"
+                    sx={{}}
+                    color="primary"
+                    size="small"
+                    onClick={() => {
+                      navigate(`/expenses/${id}/send-to-sqlacc`);
+                    }}
+                  >
+                    Send to SQL Acc
+                  </Button>
+                </Box>
+              )}
+            <Box>
+              <Chip
+                label={status}
+                color={
+                  status === "approved"
+                    ? "success"
+                    : status === "rejected"
+                    ? "error"
+                    : "warning"
+                }
+              />
+            </Box>
+            {expanded ? <ExpandLess /> : <ExpandMore />}
           </Box>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Typography variant="body2">
-            Submitted Date: {date.toLocaleDateString()}
-          </Typography>
-          {is_send_to_sql_acc && (
-            <Tooltip title="Sent to SQLACC">
-              <Check color="success" />
-            </Tooltip>
-          )}
-          <Box>
-            <Chip
-              label={status}
-              color={
-                status === "approved"
-                  ? "success"
-                  : status === "rejected"
-                  ? "error"
-                  : "warning"
-              }
-            />
-          </Box>
-          {expanded ? <ExpandLess /> : <ExpandMore />}
         </Box>
       </Card>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
@@ -482,25 +502,20 @@ const ExpenseCard = ({
                 );
               }
             })}
-            {status === "approved" && auth.role === 1 && (
-              <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end" }}>
-                <Button variant="outlined" color="primary" size="small" onClick={() => {
-                  navigate(`/expenses/${id}/send-to-sqlacc`)
-                }}>Send to SQL Acc</Button>
-              </Box>
-            )}
           <Divider />
           <Box sx={{ p: 2 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Approval Status</Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Approval Status
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {approvals.map((approval, index) => (
                 <Box
                   key={approval.id}
                   sx={{
-                    display: 'flex',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    justifyContent: 'space-between',
-                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    justifyContent: "space-between",
+                    alignItems: { xs: "flex-start", sm: "center" },
                     gap: 1,
                     // p: 2,
                     // bgcolor: approval.status === 'pending' ? 'action.hover' : 'transparent',
@@ -509,26 +524,32 @@ const ExpenseCard = ({
                     // borderColor: 'divider',
                   }}
                 >
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="subtitle2">Level {approval.level}:</Typography>
-                      <Typography variant="body2">{approval.users?.name || "----"}</Typography>
+                  <Box
+                    sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Typography variant="subtitle2">
+                        Level {approval.level}:
+                      </Typography>
+                      <Typography variant="body2">
+                        {approval.users?.name || "----"}
+                      </Typography>
                     </Box>
                     {approval.comments && (
-                      <Typography 
-                        variant="body2" 
+                      <Typography
+                        variant="body2"
                         color="text.secondary"
-                        sx={{ 
+                        sx={{
                           mt: 1,
-                          fontStyle: 'italic',
-                          maxWidth: { xs: '100%', sm: '400px' }
+                          fontStyle: "italic",
+                          maxWidth: { xs: "100%", sm: "400px" },
                         }}
                       >
                         "{approval.comments}"
                       </Typography>
                     )}
                   </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {approval.status === "pending" ? (
                       <Chip
                         icon={<Pending />}
