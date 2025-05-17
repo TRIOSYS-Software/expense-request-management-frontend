@@ -13,6 +13,8 @@ import {
   Select,
   IconButton,
   Autocomplete,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { Send, ArrowBackIos, BackHand, ArrowBack } from "@mui/icons-material";
 import { useMutation, useQueries, useQuery } from "react-query";
@@ -71,7 +73,7 @@ const ExpenseForm = () => {
     {
       queryKey: "user-projects",
       queryFn: () => getUserProjects(auth.id),
-    }
+    },
   ];
 
   const results = useQueries(queries);
@@ -116,6 +118,7 @@ const ExpenseForm = () => {
       submittedDate: "",
       paymentMethod: "",
       gl_account: "",
+      is_send_to_sql_acc: false,
     },
   });
 
@@ -177,9 +180,10 @@ const ExpenseForm = () => {
         approver: data.approvers?.split(",") || [],
         paymentMethod: data.payment_method,
         gl_account: data.gl_account,
+        is_send_to_sql_acc: data.is_send_to_sql_acc,
       });
     }
-  }, [data]);
+  }, [data, reset]);
 
   const onSubmit = (data) => {
     const date = new Date(data.submittedDate);
@@ -193,6 +197,7 @@ const ExpenseForm = () => {
     formData.append("user_id", auth.id);
     formData.append("payment_method", data.paymentMethod);
     formData.append("gl_account", data.gl_account);
+    formData.append("is_send_to_sql_acc", data.is_send_to_sql_acc);
     if (id) {
       update.mutate(formData);
     } else {
@@ -255,6 +260,7 @@ const ExpenseForm = () => {
         <Grid container spacing={2} sx={{ my: 2 }}>
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
+              disabled={id && data?.status === "approved"}
               label="Submitted Date"
               type="date"
               // value={submittedDate}
@@ -279,13 +285,24 @@ const ExpenseForm = () => {
                 control={control}
                 rules={{ required: "Project is required" }}
                 render={({ field }) => (
-                  <Select labelId="project-label" label="Project" {...field}>
+                  <Select
+                    disabled={id && data?.status === "approved"}
+                    labelId="project-label"
+                    label="Project"
+                    {...field}
+                  >
                     <MenuItem value="">Choose an option</MenuItem>
-                    {filteredProjects.map((option) => (
-                      <MenuItem key={option.code} value={option.code}>
-                        {option.description}
-                      </MenuItem>
-                    ))}
+                    {id && auth.role === 1
+                      ? projects.data?.map((option) => (
+                          <MenuItem key={option.code} value={option.code}>
+                            {option.description}
+                          </MenuItem>
+                        ))
+                      : filteredProjects.map((option) => (
+                          <MenuItem key={option.code} value={option.code}>
+                            {option.description}
+                          </MenuItem>
+                        ))}
                   </Select>
                 )}
               />
@@ -298,6 +315,7 @@ const ExpenseForm = () => {
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
+              disabled={id && data?.status === "approved"}
               label="Amount"
               type="number"
               {...register("amount", {
@@ -324,14 +342,20 @@ const ExpenseForm = () => {
               rules={{ required: "GL Account is required" }}
               render={({ field: { onChange, onBlur, value, ref } }) => (
                 <Autocomplete
-                  options={filteredGLAccounts}
+                  disabled={id && data?.status === "approved"}
+                  options={
+                    id && auth.role === 1 ? glAccounts.data : filteredGLAccounts
+                  }
                   getOptionLabel={(option) =>
                     `${option.code} - ${option.description}`
                   }
                   onChange={(event, newValue) => onChange(newValue?.dockey)}
                   onBlur={onBlur}
                   value={
-                    filteredGLAccounts.find((option) => {
+                    (id && auth.role === 1
+                      ? glAccounts.data
+                      : filteredGLAccounts
+                    ).find((option) => {
                       return option.dockey == value;
                     }) || null
                   }
@@ -356,6 +380,7 @@ const ExpenseForm = () => {
           </Grid>
           <Grid size={12}>
             <TextField
+              disabled={id && auth.role === 1}
               label="Description"
               multiline
               rows={5}
@@ -377,6 +402,7 @@ const ExpenseForm = () => {
               control={control}
               render={({ field }) => (
                 <TextField
+                  disabled={id && data?.status === "approved"}
                   type="file"
                   label="Attachment"
                   slotProps={{
@@ -420,13 +446,20 @@ const ExpenseForm = () => {
                     labelId="payment-label"
                     label="Payment Method"
                     {...field}
+                    disabled={id && data?.status === "approved"}
                   >
                     <MenuItem value="">Choose an option</MenuItem>
-                    {filteredPaymentMethods.map((pm) => (
-                      <MenuItem key={pm.code} value={pm.code}>
-                        {pm.journal} ({pm.description})
-                      </MenuItem>
-                    ))}
+                    {id && auth.role === 1
+                      ? glAccounts.data?.map((pm) => (
+                          <MenuItem key={pm.code} value={pm.code}>
+                            {pm.journal} ({pm.description})
+                          </MenuItem>
+                        ))
+                      : filteredPaymentMethods.map((pm) => (
+                          <MenuItem key={pm.code} value={pm.code}>
+                            {pm.journal} ({pm.description})
+                          </MenuItem>
+                        ))}
                   </Select>
                 )}
               />
@@ -435,6 +468,29 @@ const ExpenseForm = () => {
               <Typography variant="body2" color="error">
                 {errors.paymentMethod.message}
               </Typography>
+            )}
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            {auth.role === 1 && data?.is_send_to_sql_acc && (
+              <Controller
+                name="is_send_to_sql_acc"
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        {...field}
+                        checked={field.value}
+                        onChange={(e) => {
+                          field.onChange(e.target.checked);
+                        }}
+                      />
+                    }
+                    label="Send to SQLACC"
+                    labelPlacement="start"
+                  />
+                )}
+              />
             )}
           </Grid>
         </Grid>

@@ -464,6 +464,30 @@ const ExpenseCard = ({
               </Button>
             </Box>
           )}
+          {status === "approved" && auth.role === 1 && (
+            <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end" }}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  navigate(`/expenses/form/${id}`);
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                sx={{ ml: 2 }}
+                variant="contained"
+                size="small"
+                color="error"
+                onClick={() => {
+                  deleteExpense.mutate(id);
+                }}
+              >
+                Delete
+              </Button>
+            </Box>
+          )}
           {status === "pending" &&
             (auth.role === 2 || auth.role === 1) &&
             approvals.map((approval, index) => {
