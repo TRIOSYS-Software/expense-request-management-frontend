@@ -35,6 +35,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import UserProject from "./pages/UserProject";
 import AssignProject from "./pages/AssignProject";
+import websocket from "./libs/websocket";
 
 const theme = createTheme({
   palette: {
@@ -263,6 +264,39 @@ export default function ThemedApp() {
     fetchVerify()
       .then((user) => {
         if (user) setAuth(user);
+        const ws = websocket(user.id);
+        if (
+          Notification.permission === "denied" ||
+          Notification.permission === "default"
+        ) {
+          Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+              console.log("Notification permission granted");
+            } else {
+              console.log("Notification permission denied");
+            }
+          });
+        }
+        ws.onopen = () => {
+          console.log("WebSocket connection opened");
+        };
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log(data);
+            if (Notification.permission === "granted") {
+              new Notification("New Expense Request", {
+                body: data.message,
+              });
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        };
+
+        ws.onclose = () => {
+          console.log("WebSocket connection closed");
+        };
         setIsLoadingUser(false);
       })
       .catch(() => setIsLoadingUser(false));

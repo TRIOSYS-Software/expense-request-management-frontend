@@ -110,7 +110,20 @@ export default function ExpenseRequestList({ data }) {
   // }
 
   const filterByStatus = (status) => {
-    return data?.filter((expense) => expense.status === status);
+    return data?.filter((expense) => {
+      if (status === "pending") {
+        return (
+          expense.status === status &&
+          expense.approvals.some((approval) => {
+            return (
+              approval.level === expense.current_approver_level &&
+              approval.users.id === auth.id
+            );
+          })
+        );
+      }
+      return expense.status === status;
+    });
   };
 
   const pendingExpenseRequest = filterByStatus("pending");

@@ -115,9 +115,8 @@ function PolicyForm() {
   };
 
   const handleRemoveSelectBox = (index) => {
-    if (fields.length > 1) {
-      remove(index);
-    }
+    const newFields = fields.filter((field, i) => i !== index);
+    reset({ approvers: newFields, department: data.department, project: data.project });
   };
 
   const handleAddSelectBox = () => {
