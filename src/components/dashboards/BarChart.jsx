@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { fetchExpenseRequestsSummary } from "../../libs"
+import { fetchExpenseRequestsSummary } from "../../libs";
 import { Bar, Line } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { format, eachDayOfInterval } from "date-fns";
