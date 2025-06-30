@@ -1,14 +1,14 @@
 pipeline {
   agent any
   stages {
-    stage('checkout') {
+    stage('build') {
+      agent any
       steps {
-        git(url: 'https://github.com/TRIOSYS-Software/expense-request-management-frontend', branch: 'features')
-        echo 'hello world'
+        sh 'npm run build'
       }
     }
 
-    stage('build') {
+    stage('deploy') {
       steps {
         sh 'ls -ll'
       }
